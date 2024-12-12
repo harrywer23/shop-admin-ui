@@ -1,0 +1,22 @@
+export default {
+  title: '차원 마켓',
+  search: '검색',
+  latest: '최신',
+  hot: '인기',
+  query: '조회',
+  default: '기본',
+  new: '신규',
+  confirm: '확인',
+  cancel: '취소',
+  save: '저장',
+  delete: '삭제',
+  edit: '편집',
+  pleaseLogin: '로그인해 주세요',
+  operationFailed: '작업 실패',
+  viewMore: '더 보기',
+  loading: '로딩 중...',
+  noData: '데이터 없음',
+  loadError: '로딩 실패',
+  submit: '제출',
+  maintenance: '시스템 유지보수 중'
+} 

@@ -1,0 +1,22 @@
+export default {
+  title: 'ディメンションマーケット',
+  search: '検索',
+  latest: '最新',
+  hot: '人気',
+  query: '検索',
+  default: 'デフォルト',
+  new: '新規',
+  confirm: '確認',
+  cancel: 'キャンセル',
+  save: '保存',
+  delete: '削除',
+  edit: '編集',
+  pleaseLogin: 'ログインしてください',
+  operationFailed: '操作に失敗しました',
+  viewMore: 'もっと見る',
+  loading: '読み込み中...',
+  noData: 'データがありません',
+  loadError: '読み込みに失敗しました',
+  submit: '送信',
+  maintenance: 'システムメンテナンス中'
+} 
