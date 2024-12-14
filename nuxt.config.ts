@@ -2,6 +2,9 @@
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineNuxtConfig({
+  // devServer: {
+  //   port:3002
+  // },
   devtools: { enabled: true },
 
   dir: {

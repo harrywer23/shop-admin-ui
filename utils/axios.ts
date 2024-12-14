@@ -30,6 +30,7 @@ api.interceptors.request.use(function (config) {
   const currentLang = useCookie('user-language');
   // 添加语言参数到请求头
   config.headers['Accept-Language'] = currentLang.value || 'zh-CN';
+  config.headers['Landing-Type'] = 'system';
 
   // 从本地存储或其他地方获取token
   const token = useCookie('token');

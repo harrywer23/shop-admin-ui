@@ -50,7 +50,7 @@ async function onSubmit(e: Event) {
 
     console.log('Sending reset password request:', requestData);
 
-    const response = await api.post('/user/restPasswort', requestData, {
+    const response = await api.post('/sysUser/restPasswort', requestData, {
       headers: {
         'Content-Type': 'application/json'
       }

@@ -5,7 +5,7 @@
           <q-avatar>
             <q-img src="/favicon.webp"/>
           </q-avatar>
-          {{ $t('common.title') }}
+          {{ $t('common.title') }}ADMIN
         </q-toolbar-title>
         <q-space />
         <q-select

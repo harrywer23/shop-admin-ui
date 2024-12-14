@@ -34,7 +34,7 @@ async function sendResetEmail() {
   loading.value = true;
   try {
     console.log('Sending reset email to:', email.value);
-    const response = await api.get('/user/sendCheckEmailCode', {
+    const response = await api.get('/sysUser/sendCheckEmailCode', {
       params: { email: email.value }
     });
 
