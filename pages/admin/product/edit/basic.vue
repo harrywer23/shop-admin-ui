@@ -262,7 +262,43 @@
               />
             </div>
           </div>
+          <div class="row q-col-gutter-md">
+            <div class="col-2 col-md-3">
+              <a :href="sourceUrl" target="_blank">源地址</a>
+            </div>
+            <div class="col-2 col-md-3">
+             <q-input
+                 v-model.number="price"
+                 type="number"
+                      label="价格"
+                 @update:model-value="headUpdatePrice"
+             />
+          </div>
+          <div class="col-2 col-md-3">
+              <q-input
+                  v-model.number="multiple"
+                  type="number"
+                  label="倍"
+                  @update:model-value="headUpdatePrice"
 
+              />
+          </div>
+            <div class="col-2 col-md-3">
+              <q-input
+                  v-model.number="usprice"
+                  type="number"
+                  label="美元价格"
+              />
+            </div>
+          <div class="col-2 col-md-3">
+              <q-input
+                  v-model.number="rmbprice"
+                  type="number"
+                       label="人民币价格"
+              />
+          </div>
+
+          </div>
           <!-- 提交按钮 -->
           <div class="row justify-end q-mt-md">
             <q-btn
@@ -291,6 +327,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useQuasar } from 'quasar'
 import {formatToDateTime} from "~/utils/format";
+import * as timers from "node:timers";
 
 const router = useRouter()
 const route = useRoute()
@@ -341,7 +378,7 @@ const qualityOptions = [
     description: '品质较差，存在明显的缺陷'
   }
 ]
-
+const sourceUrl=ref("");
 // 表单数据
 const form = ref({
   prodType: ProductType.NORMAL,
@@ -352,12 +389,15 @@ const form = ref({
   categoryId: 0,
   totalStocks: 0,
   seckillPrice: 0,
+  faceValue: 0,
   seckillStartTime: '',
   seckillEndTime: '',
   presellStatus: 0,
   presellStartTime: '',
   presellEndTime: '',
   presellDeliveryTime: '',
+  presellFinalStartTime:"",
+  presellFinalEndTime:"",
   presellPrice: 0,
   presellDeposit: 0,
   presellFinalPayment: 0,
@@ -368,12 +408,20 @@ const form = ref({
 })
 
 const submitting = ref(false)
+const price = ref(0.0)
+const multiple = ref(1.5)
+const rmbprice = ref(0.0)
+const usprice = ref(0.0)
 
+function headUpdatePrice(){
+  usprice.value=price.value/7*multiple.value;
+  rmbprice.value=usprice.value*7;
+}
 // 加载商品数据
 async function loadData() {
   try {
-    const response = await fetch(`/api/prod/detail?id=${prodId.value}`)
-    const result = await response.json()
+    const response = await api.get(`/sys/prod/detail/${prodId.value}`)
+    const result = await response.data;
     //console.log('商品数据加载成功 1:',result);
     if (result.code === 200) {
       const { prodName, prodCode, brief, oriPrice, price, totalStocks } = result.data
@@ -391,7 +439,7 @@ async function loadData() {
       form.value.oriPrice=result.data.oriPrice;
       form.value.prodName=result.data.prodName;
       form.value.prodType=result.data.prodType;
-
+      sourceUrl.value=result.data.sourceUrl;
     }
   } catch (error) {
     console.error('加载数据失败:', error)
@@ -454,7 +502,7 @@ async function handleSubmit() {
       seckillEndTime: form.value.seckillEndTime ? formatToDateTime(form.value.seckillEndTime) : null
     }
 
-    const { data } = await api.post('/admin/prod/update/baseInfo', submitData)
+    const { data } = await api.post('/sys/prod/update/baseInfo', submitData)
 
     if (data.code === 200) {
       $q.notify({

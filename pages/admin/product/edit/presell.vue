@@ -200,8 +200,8 @@ const form = ref({
 // 加载商品数据
 async function loadData() {
   try {
-    const response = await fetch(`/api/prod/prod/info/${prodId}`)
-    const result = await response.json()
+    const response = await  api.get(`/sys/prod/prod/info/${prodId}`)
+    const result = await response.data
 
     if (result.code === 200) {
       productInfo.value = result.data
@@ -268,7 +268,7 @@ async function handleSubmit() {
       }
     }
 
-    const response = await fetch(`/api/prod/prod/presell/${prodId}`, {
+    const response = await  api.put(`/sys/prod/prod/presell/${prodId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -283,7 +283,7 @@ async function handleSubmit() {
       })
     })
 
-    const result = await response.json()
+    const result = await response.data
 
     if (result.code === 200) {
       $q.notify({

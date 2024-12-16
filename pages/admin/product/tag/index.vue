@@ -294,7 +294,7 @@ const pagination = ref({
 const loadTags = async () => {
   loading.value = true
   try {
-    const response = await api.get('/admin/prod/tag/list', {
+    const response = await api.get('/sys/prod/tag/list', {
       params: {
         page: pagination.value.page,
         limit: pagination.value.rowsPerPage,
@@ -375,7 +375,7 @@ const showTagDialog = (mode: 'add' | 'edit', tag?: ProdTag) => {
 // 提交表单
 const handleSubmit = async () => {
   try {
-    const url = dialogMode.value === 'add' ? '/admin/prod/tag/add' : '/admin/prod/tag/update'
+    const url = dialogMode.value === 'add' ? '/sys/prod/tag/add' : '/sys/prod/tag/update'
 
     const submitData = {
       ...formData.value,
@@ -408,7 +408,7 @@ const handleSubmit = async () => {
 // 切换状态
 const toggleStatus = async (tag: ProdTag) => {
   try {
-    const response = await api.post('/admin/prod/tag/status', {
+    const response = await api.post('/sys/prod/tag/status', {
       id: tag.id,
       status: !tag.status
     })
@@ -441,7 +441,7 @@ const confirmDelete = (tag: ProdTag) => {
     persistent: true
   }).onOk(async () => {
     try {
-      const response = await api.delete(`/admin/prod/tag/delete/${tag.id}`)
+      const response = await api.delete(`/sys/prod/tag/delete/${tag.id}`)
 
       const { code, msg } = response.data
       if (code === 200) {

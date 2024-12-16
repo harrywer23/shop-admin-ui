@@ -172,8 +172,8 @@ const sortDialog = ref({
 // 加载产品信息和图片列表
 async function loadData() {
   try {
-    const response = await fetch(`/api/prod/detail?id=${prodId.value}`)
-    const result = await response.json()
+    const response = await api.get(`/sys/prod/detail/${prodId.value}`)
+    const result = await response.data
     //console.log('商品数据加载成功 1:',result);
     if (result.code === 200) {
       productInfo.value = result.data;
@@ -206,12 +206,9 @@ async function handleFileUpload(files: File[]) {
       formData.append('files', file)
     })
 
-    const response = await fetch('/api/upload/batch', {
-      method: 'POST',
-      body: formData
-    })
+    const response = await api.post('/sys/upload/batch', formData)
 
-    const result = await response.json()
+    const result = await response.data
     if (result.code === 200) {
       // 添加新上传的图片
       const newImages = result.data.map((item: any) => ({ url: item.url }))
@@ -293,18 +290,13 @@ async function confirmSort() {
 // 保存图片列表
 async function saveImages() {
   try {
-    const response = await fetch('/api/prod/prod/images/update', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
+    const response = await api.post('/sys/prod/prod/images/update', JSON.stringify({
         prodId: prodId.value,
         imgs: imageList.value.map(img => img.url).join(',')
       })
-    })
+    )
 
-    const result = await response.json()
+    const result = await response.data
     if (result.code !== 200) {
       throw new Error(result.msg || '保存失败')
     }

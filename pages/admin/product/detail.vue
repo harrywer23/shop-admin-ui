@@ -495,8 +495,8 @@ const updateComments = (comments: any) => {
 async function loadProductData() {
   //console.log('=== 开始加载商品数据 ===')
   try {
-    const response = await fetch(`/api/prod/detail?id=${prodId.value}`)
-    const result = await response.json()
+    const response = await api.get(`/api/prod/detail?id=${prodId.value}`)
+    const result = await response.data
     //console.log('商品数据加载成功 1:',result);
     if (result.code === 200) {
       productInfo.value = result.data;

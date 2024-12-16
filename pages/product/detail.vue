@@ -1,14 +1,5 @@
 <template>
   <div class="product-detail">
-    <!-- 面包屑导航 -->
-<!--    <div class="breadcrumb q-pa-md bg-white">-->
-<!--      <q-breadcrumbs>-->
-<!--        <q-breadcrumbs-el label="商品管理" icon="shopping_bag" />-->
-<!--        <q-breadcrumbs-el label="商品列表" to="/product/sort?category=1" />-->
-<!--        <q-breadcrumbs-el :label=" getCurrentLanguageName(productInfo?.translations, productInfo?.prodName) || '商品详情'" />-->
-<!--      </q-breadcrumbs>-->
-<!--    </div>-->
-
     <!-- 主要内容区域 -->
     <div class="product-content q-pa-md row q-col-gutter-md">
       <!-- 左侧图片区域 -->

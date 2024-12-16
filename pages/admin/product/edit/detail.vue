@@ -104,8 +104,8 @@ const editorInstance = ref<any>(null)
 async function loadData() {
   //console.log('=== 开始加载商品数据 ===')
   try {
-    const response = await fetch(`/api/prod/detail?id=${prodId.value}`)
-    const result = await response.json()
+    const response = await api.get(`/sys/prod/detail/${prodId.value}`)
+    const result = await response.data
     //console.log('商品数据:', result)
 
     if (result.code === 200) {
@@ -197,7 +197,7 @@ async function handleSubmit() {
     }
     //console.log('提交数据:', submitData)
 
-    const response = await api.post('/prod/update/content', submitData)
+    const response = await api.post('/sys/prod/update/content', submitData)
 
     //console.log('提交响应:', response)
 

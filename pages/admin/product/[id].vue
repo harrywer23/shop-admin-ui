@@ -73,8 +73,8 @@ const product = ref<any>({})
 const getProductDetail = async () => {
   try {
     const prodId = route.params.id
-    const response = await $fetch(`/api/product/${prodId}/detail`)
-    product.value = response
+    const response = await api.get(`/api/product/${prodId}/detail`)
+    product.value =await response.data
     //console.log("product:",product)
   } catch (error) {
     console.error('获取商品详情失败:', error)
@@ -88,11 +88,13 @@ const getProductDetail = async () => {
 // 加载商品参数
 const loadProductParams = async () => {
   try {
-    const response = await $fetch<ApiResponse<any>>(`/api/product/${route.params.id}/params`)
-    if (response.code === 200) {
-      productParams.value = response.data
+    const response = await api.get<ApiResponse<any>>(`/sys/prod/${route.params.id}/params`)
+    const data =await response.data
+
+    if (data.code === 200) {
+      productParams.value = data.data
     } else {
-      console.error('Failed to load product params:', response.message)
+      console.error('Failed to load product params:', data.message)
     }
   } catch (error) {
     console.error('加载商品参数失败:', error)

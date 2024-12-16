@@ -2,20 +2,20 @@
   <div class="sku-table">
     <q-table
       :rows="modelValue"
-      :columns="getColumns"
+      :columns="columns"
       row-key="skuId"
       flat
       bordered
     >
-     <!-- 规格属性 -->
-     <template #body-cell-skuName="props">
+      <!-- 规格属性 -->
+      <template #body-cell-skuName="props">
         <q-td :props="props">
           <q-input
-                v-model="props.row.skuName"
-                dense
-                outlined
-                style="min-width: 200px"
-              />
+            v-model="props.row.skuName"
+            dense
+            outlined
+            style="min-width: 200px"
+          />
         </q-td>
       </template>
       <!-- 规格属性 -->
@@ -40,6 +40,8 @@
             fill-mask="0"
             reverse-fill-mask
             input-class="text-right"
+            class="price-input"
+            style="min-width: 150px"
             @update:model-value="val => updateValue(props.row)"
           />
         </q-td>
@@ -78,6 +80,8 @@
             fill-mask="0"
             reverse-fill-mask
             input-class="text-right"
+            class="price-input"
+            style="min-width: 150px"
             @update:model-value="val => updateValue(props.row)"
           />
         </q-td>
@@ -96,6 +100,8 @@
             fill-mask="0"
             reverse-fill-mask
             input-class="text-right"
+            class="price-input"
+            style="min-width: 150px"
             @update:model-value="val => updateValue(props.row)"
           />
         </q-td>
@@ -117,6 +123,8 @@
             type="number"
             dense
             outlined
+            class="number-input"
+            style="min-width: 150px"
             @update:model-value="val => updateValue(props.row)"
           />
         </q-td>
@@ -245,7 +253,7 @@
         <q-td :props="props">
           <q-btn
             :color="props.row.status === 1 ? 'positive' : 'grey-7'"
-            :label="props.row.status === 1 ? '已上架' : '已下架'"
+            :label="props.row.status === 1 ? '已上架' : '下架'"
             :icon="props.row.status === 1 ? 'visibility' : 'visibility_off'"
             flat
             dense
@@ -253,6 +261,25 @@
           >
             <q-tooltip>
               {{ props.row.status === 1 ? '点击下架' : '点击上架' }}
+            </q-tooltip>
+          </q-btn>
+        </q-td>
+      </template>
+
+      <!-- 修改操作列的模板 -->
+      <template #body-cell-actions="props" class="action-column">
+        <q-td :props="props">
+          <q-btn
+            flat
+            round
+            color="negative"
+            icon="delete"
+            size="sm"
+            class="delete-btn"
+            @click.stop="handleDelete(props.row.skuId)"
+          >
+            <q-tooltip anchor="center right" self="center left">
+              删除此SKU
             </q-tooltip>
           </q-btn>
         </q-td>
@@ -322,10 +349,11 @@ const props = defineProps({
 
 const emit = defineEmits<{
   'update:modelValue': [value: SkuRow[]]
+  'delete-sku': [value: number | string]
 }>()
 
 // 修改列定义计算属性
-const getColumns = computed(() => {
+const columns = computed(() => {
   //console.log('生成列定义, 商品类型:', props.prodType)
 
   // 基础列始终显示
@@ -377,6 +405,12 @@ const getColumns = computed(() => {
       label: '状态',
       field: 'status',
       align: 'center' as const
+    },
+    {
+      name: 'actions',
+      label: '操作',
+      align: 'center',
+      field: 'actions'
     }
   ]
 
@@ -543,6 +577,11 @@ const generateSkuCombinations = (properties: Record<string, any>) => {
   }
   // ... 其他代码保持不变
 }
+
+// 处理删除操作
+function handleDelete(skuId: number | string) {
+  emit('delete-sku', skuId)
+}
 </script>
 
 <style lang="scss" scoped>
@@ -550,16 +589,87 @@ const generateSkuCombinations = (properties: Record<string, any>) => {
   :deep(.q-table) {
     th {
       font-weight: 500;
+      min-width: 150px;
     }
 
     td {
       padding: 8px;
+      min-width: 150px;
+    }
+
+    // 统一设置所有数字输入框的样式
+    .number-input,
+    .price-input {
+      .q-field__inner {
+        min-width: 150px;
+      }
+
+      .q-field__control {
+        height: 36px;
+        padding: 0 8px;
+      }
+
+      input {
+        font-size: 14px;
+        text-align: right;
+        padding-right: 8px;
+      }
+    }
+
+    // 所有输入框统一宽度
+    td {
+      .q-field {
+        margin: 0;
+        min-width: 150px;
+        
+        &.q-field--outlined,
+        &.q-field--filled {
+          .q-field__control {
+            min-height: 36px;
+          }
+          
+          .q-field__inner {
+            min-width: 150px;
+          }
+        }
+      }
+    }
+
+    // 特殊列的处理
+    td[aria-colindex="1"] {
+      min-width: 200px;
+    }
+
+    td[aria-colindex="2"] {
+      min-width: 200px;
+    }
+
+    td:last-child {
+      min-width: 100px;
     }
   }
 
+  // 优化表格整体布局
+  .q-table__container {
+    overflow-x: auto;
+    
+    table {
+      min-width: 1500px;
+    }
+  }
+
+  // 修改输入框样式
+  :deep(.q-input) {
+    .q-field__inner {
+      min-width: 150px;
+    }
+  }
+
+  // 规格属性单元格样式
   .properties-cell {
     white-space: normal;
     word-break: break-all;
+    min-width: 150px;
   }
 }
 

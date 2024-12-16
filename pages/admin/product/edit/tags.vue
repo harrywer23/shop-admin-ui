@@ -98,15 +98,9 @@ async function loadTagData() {
     //console.log('=== 开始加载标签数据 ===')
 
     // 获取商品标签
-    const response = await fetch('/api/prod/prod/tags/list', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ prodId: prodId.value })
-    })
+    const response = await api.post('/sys/prod/prod/tags/list', JSON.stringify({ prodId: prodId.value }))
 
-    const result = await response.json()
+    const result = await response.data
     //console.log('已选标签数据:', result)
 
     if (result.code === 200) {
@@ -114,8 +108,8 @@ async function loadTagData() {
     }
 
     // 获取所有可用标签
-    const allTagsResponse = await fetch('/api/prod/prodTag/list')
-    const allTagsResult = await allTagsResponse.json()
+    const allTagsResponse = await api.get('/sys/prod/prodTag/list')
+    const allTagsResult = await allTagsResponse.data
     //console.log('所有标签数据:', allTagsResult)
 
     if (allTagsResult.code === 200) {

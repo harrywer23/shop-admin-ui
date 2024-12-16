@@ -220,7 +220,7 @@
               <q-item-section>
                 <q-item-label>{{ value.propValue }}</q-item-label>
                 <q-item-label caption>
-                  EN: {{ value.translationsI18n?.en || '-' }} | 
+                  EN: {{ value.translationsI18n?.en || '-' }} |
                   繁中: {{ value.translationsI18n?.zhTw || '-' }} |
                   日: {{ value.translationsI18n?.ja || '-' }} |
                   韓: {{ value.translationsI18n?.ko || '-' }}
@@ -341,7 +341,7 @@ const valueDialog = ref({
 const loadProps = async () => {
   loading.value = true
   try {
-    const response = await api.get('/admin/prod/prop/list', {
+    const response = await api.get('/sys/prod/prop/list', {
       params: {
         page: pagination.value.page,
         limit: pagination.value.rowsPerPage,
@@ -350,7 +350,7 @@ const loadProps = async () => {
       }
     })
     const { code, data, total } = response.data
-    
+
     if (code === 200) {
       props.value = data.map((prop: Prop) => ({
         ...prop,
@@ -418,8 +418,8 @@ const showPropDialog = (mode: 'add' | 'edit', prop?: Prop) => {
 // 提交属性表单
 const handlePropSubmit = async () => {
   try {
-    const url = propDialog.value.mode === 'add' ? '/admin/prod/prop/add' : '/admin/prod/prop/update'
-    
+    const url = propDialog.value.mode === 'add' ? '/sys/prod/prop/add' : '/sys/prod/prop/update'
+
     const submitData = {
       ...propDialog.value.data,
       propName: propDialog.value.data.translationsI18n.zh,
@@ -477,7 +477,7 @@ const handleValueSubmit = async () => {
       translations: JSON.stringify(valueDialog.value.data.translationsI18n)
     }
 
-    const response = await api.post('/admin/prod/prop/value/add', submitData)
+    const response = await api.post('/sys/prod/prop/value/add', submitData)
 
     const { code, msg } = response.data
     if (code === 200) {
@@ -487,7 +487,7 @@ const handleValueSubmit = async () => {
       })
       // 重新加载属性值列表
       if (valueDialog.value.currentProp) {
-        const propResponse = await api.get(`/admin/prod/prop/${valueDialog.value.currentProp.propId}`)
+        const propResponse = await api.get(`/sys/prod/prop/${valueDialog.value.currentProp.propId}`)
         if (propResponse.data.code === 200) {
           valueDialog.value.values = propResponse.data.data.values.map((value: PropValue) => ({
             ...value,
@@ -530,8 +530,8 @@ const confirmDelete = (prop: Prop) => {
     persistent: true
   }).onOk(async () => {
     try {
-      const response = await api.delete(`/admin/prod/prop/${prop.propId}`)
-      
+      const response = await api.delete(`/sys/prod/prop/${prop.propId}`)
+
       const { code, msg } = response.data
       if (code === 200) {
         $q.notify({
@@ -561,8 +561,8 @@ const confirmDeleteValue = (value: PropValue) => {
     persistent: true
   }).onOk(async () => {
     try {
-      const response = await api.delete(`/admin/prod/prop/value/${value.valueId}`)
-      
+      const response = await api.delete(`/sys/prod/prop/value/${value.valueId}`)
+
       const { code, msg } = response.data
       if (code === 200) {
         $q.notify({
@@ -614,4 +614,4 @@ onMounted(() => {
     }
   }
 }
-</style> 
+</style>

@@ -423,8 +423,8 @@ async function loadData() {
     // if (productResponse.data.code === 200) {
     //   productInfo.value = productResponse.data.data
     // }
-    const response = await fetch(`/api/prod/detail?id=${prodId.value}`)
-    const result = await response.json()
+    const response = await api.get(`/sys/prod/detail?id=${prodId.value}`)
+    const result = await response.data
     //console.log('商品数据:', result)
 
     if (result.code === 200) {
@@ -434,7 +434,7 @@ async function loadData() {
     }
 
     // 加载SKU列表
-    const skuResponse = await api.get(`/sku/list`, {
+    const skuResponse = await api.get(`/sys/sku/list`, {
       params: { prodId: prodId.value }
     })
     if (skuResponse.data.code === 200) {
@@ -519,7 +519,7 @@ async function confirmSkuImage() {
 function handlePriceChange(sku: any, field: string, value: number) {
   sku[field] = value
   sku.modified = true
-  
+
   // 如果是预售相关的价格变更，重新计算尾款
   if (field === 'presellPrice' || field === 'presellDeposit') {
     calculateFinalPayment(sku)
@@ -532,7 +532,7 @@ function handleStockChange(sku: any, value: number) {
 }
 
 async function handleStatusChange(sku: any) {
-   const response= await api.post('/sku/update/status',  JSON.stringify({
+   const response= await api.post('/sys/sku/update/status',  JSON.stringify({
       "skuId": sku.skuId,
       "prodId": prodId.value,
       "status": sku.status === 1 ? 0 : 1

@@ -43,6 +43,7 @@
               :sku-props="skuProps"
               :prod-name="prodName"
               :prod-type="prodType"
+              @delete-sku="handleDeleteSku"
             />
           </div>
         </section>
@@ -215,8 +216,8 @@ const skuTableRef = ref(null)
 async function loadProductData() {
   try {
     //console.log('=== 开始加载商品数据 ===')
-    const response = await fetch(`/api/prod/detail?id=${prodId.value}`)
-    const result = await response.json()
+    const response = await api.get(`/sys/prod/detail/${prodId.value}`)
+    const result = await response.data
     //console.log('商品数据:', result)
 
     if (result.code === 200) {
@@ -277,20 +278,15 @@ function handleSelectedPropsChange(data: {
 async function handleSubmit() {
   try {
     submitting.value = true
-    const response = await fetch('/api/prod/prod/update-sku', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
+    const response = await api.post('/sys/sku/update-sku', JSON.stringify({
         prodId: prodId.value,
         skuList: skuList.value,
         propList: propList.value,
         propValueList: propValueList.value
       })
-    })
+    )
 
-    const result = await response.json()
+    const result = await response.data
 
     if (result.code === 200) {
       $q.notify({
@@ -327,6 +323,21 @@ watch(() => skuProps.value, (newProps) => {
     }
   })
 }, { deep: true })
+
+function handleDeleteSku(skuId: number | string) {
+  $q.dialog({
+    title: '确认删除',
+    message: '确定要删除这个 SKU 吗？',
+    cancel: true,
+    persistent: true
+  }).onOk(() => {
+    skuList.value = skuList.value.filter(sku => sku.skuId !== skuId)
+    $q.notify({
+      type: 'positive',
+      message: 'SKU 已删除'
+    })
+  })
+}
 </script>
 
 <style lang="scss" scoped>
@@ -407,6 +418,31 @@ watch(() => skuProps.value, (newProps) => {
       padding: 8px;
       border: 1px dashed #e0e0e0;
       border-radius: 4px;
+    }
+  }
+
+  :deep(.q-field--money) {
+    .q-field__native {
+      min-width: 120px;
+    }
+  }
+
+  .section-content {
+    .row {
+      .col-12 {
+        @media (min-width: 1024px) {
+          flex: 0 0 25%;
+          max-width: 25%;
+        }
+
+        .q-field {
+          width: 100%;
+
+          .q-field__inner {
+            min-width: 150px;
+          }
+        }
+      }
     }
   }
 }

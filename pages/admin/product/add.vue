@@ -799,8 +799,8 @@ const getDataList = async () => {
   try {
     await getTagList()
     if (dataForm.value.prodId) {
-      const response = await fetch(`/api/prod/prod/info/${dataForm.value.prodId}`)
-      const data = await response.json()
+      const response = await api.get(`/sys/prod/info/${dataForm.value.prodId}`)
+      const data = await response.data
 
       // 格式化时间字段
       const formattedData = {
@@ -860,8 +860,8 @@ const fetchCategoryName = async () => {
 // 获取标签列表
 const getTagList = async () => {
   try {
-    const response = await fetch('/api/prod/prodTag/list')
-    const result: ApiResponse<ProdTag[]> = await response.json()
+    const response = await api.get('/sys/prod/prodTag/list')
+    const result: ApiResponse<ProdTag[]> = await response.data
 
     if (result.code === 200) {
       // 转换数据格式以适配选择器
@@ -1060,7 +1060,7 @@ const submitForm = async () => {
       body: JSON.stringify(submitData)
     })
 
-    const result = await response.json()
+    const result = await response.data
     //console.log("提交响应:", result)
 
     if (result.code === 200) {
@@ -1238,12 +1238,9 @@ async function handleFileUpload(files: File[]) {
       formData.append('files', file)
     })
 
-    const response = await fetch('/api/upload/batch', {
-      method: 'POST',
-      body: formData
-    })
+    const response = await api.post('/sys/upload/batch', formData)
 
-    const result = await response.json()
+    const result = await response.data
     if (result.code === 200) {
       // 添加新上传的图片
       const newImages = result.data.map((item: any) => item.url)
