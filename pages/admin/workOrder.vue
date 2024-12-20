@@ -1,167 +1,233 @@
 <template>
   <div class="work-order-container">
-    <a-card title="工单管理">
-      <a-form layout="inline" :model="queryParams" class="query-form">
-        <a-form-item label="工单状态">
-          <a-select
-            v-model:value="queryParams.status"
-            style="width: 120px"
-            allowClear
-            placeholder="请选择状态"
-          >
-            <a-select-option :value="1">待处理</a-select-option>
-            <a-select-option :value="2">处理中</a-select-option>
-            <a-select-option :value="3">处理完成</a-select-option>
-            <a-select-option :value="4">已拒绝</a-select-option>
-          </a-select>
-        </a-form-item>
+    <q-card class="q-mb-md">
+      <q-card-section>
+        <div class="text-h6">工单管理</div>
+      </q-card-section>
 
-        <a-form-item label="工单类型">
-          <a-select
-            v-model:value="queryParams.workType"
-            style="width: 120px"
-            allowClear
-            placeholder="请选择类型"
-          >
-            <a-select-option :value="1">故障/Bug</a-select-option>
-            <a-select-option :value="2">投诉</a-select-option>
-            <a-select-option :value="3">建议</a-select-option>
-            <a-select-option :value="0">其他</a-select-option>
-          </a-select>
-        </a-form-item>
+      <q-card-section>
+        <div class="row q-col-gutter-md">
+          <!-- 状态筛选 -->
+          <div class="col-12 col-sm-3">
+            <q-select
+              v-model="queryParams.status"
+              :options="statusOptions"
+              label="工单状态"
+              clearable
+              outlined
+              dense
+              emit-value
+              map-options
+            />
+          </div>
 
-        <a-form-item label="提交时间">
-          <a-range-picker
-            v-model:value="dateRange"
-            :show-time="{ format: 'HH:mm' }"
-            format="YYYY-MM-DD HH:mm"
-            value-format="YYYY-MM-DD HH:mm:ss"
-            @change="onDateRangeChange"
-          />
-        </a-form-item>
+          <!-- 类型筛选 -->
+          <div class="col-12 col-sm-3">
+            <q-select
+              v-model="queryParams.workType"
+              :options="typeOptions"
+              label="工单类型"
+              clearable
+              outlined
+              dense
+              emit-value
+              map-options
+            />
+          </div>
 
-        <a-form-item>
-          <a-space>
-            <a-button type="primary" @click="handleQuery">查询</a-button>
-            <a-button @click="resetQuery">重置</a-button>
-          </a-space>
-        </a-form-item>
-      </a-form>
-
-      <a-table
-        :columns="columns"
-        :data-source="workOrders"
-        :pagination="pagination"
-        @change="handleTableChange"
-      >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'status'">
-            <a-tag :color="getStatusColor(record.status)">
-              {{ getStatusText(record.status) }}
-            </a-tag>
-          </template>
-
-          <template v-if="column.key === 'imgUrls'">
-            <template v-if="!record.imgUrls">-</template>
-            <template v-else>
-              <div class="image-preview-container">
-                <a-button
-                  type="link"
-                  size="small"
-                  @click="toggleImageExpand(record.id)"
-                >
-                  {{ getUrlsCount(record.imgUrls) }}张图片
-                  <template #icon>
-                    <down-outlined v-if="expandedImageRecord !== record.id" />
-                    <up-outlined v-else />
-                  </template>
-                </a-button>
-
-                <div v-show="expandedImageRecord === record.id" class="image-expand-container">
-                  <a-image-preview-group>
-                    <div class="image-grid">
-                      <a-image
-                        v-for="(url, index) in record.imgUrls.split(',')"
-                        :key="index"
-                        :src="getImageUrl(url)"
-                        :width="80"
-                        class="grid-image"
-                      />
-                    </div>
-                  </a-image-preview-group>
-                </div>
-              </div>
-            </template>
-          </template>
-
-          <template v-if="column.key === 'action'">
-            <a-space>
-              <template v-if="record.status === 1">
-                <a-button
-                  type="primary"
-                  size="small"
-                  @click="startProcess(record)"
-                >
-                  开始处理
-                </a-button>
+          <!-- 时间范围 -->
+          <div class="col-12 col-sm-4">
+            <q-input
+              v-model="dateRange"
+              outlined
+              dense
+              label="提交时间"
+            >
+              <template v-slot:append>
+                <q-icon name="event" class="cursor-pointer">
+                  <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                    <q-date
+                      v-model="dateRange"
+                      range
+                      mask="YYYY-MM-DD HH:mm:ss"
+                    >
+                      <div class="row items-center justify-end">
+                        <q-btn v-close-popup label="关闭" color="primary" flat />
+                      </div>
+                    </q-date>
+                  </q-popup-proxy>
+                </q-icon>
               </template>
-              <template v-if="record.status === 2">
-                <a-button
-                  type="primary"
-                  size="small"
-                  @click="showReplyModal(record)"
-                >
-                  完成处理
-                </a-button>
-              </template>
-              <a-button
-                type="primary"
-                danger
-                size="small"
-                @click="showRejectModal(record)"
-                :disabled="record.status === 2 || record.status === 3 || record.status === 4"
+            </q-input>
+          </div>
+
+          <!-- 操作按钮 -->
+          <div class="col-12 col-sm-2">
+            <div class="row q-gutter-sm">
+              <q-btn color="primary" icon="search" label="查询" @click="handleQuery" />
+              <q-btn outline color="primary" icon="refresh" label="重置" @click="resetQuery" />
+            </div>
+          </div>
+        </div>
+      </q-card-section>
+
+      <!-- 工单列表 -->
+      <q-card-section>
+        <q-table
+          :rows="workOrders"
+          :columns="columns"
+          :pagination.sync="pagination"
+          :loading="loading"
+          row-key="id"
+          @request="onRequest"
+          binary-state-sort
+        >
+          <!-- 状态列 -->
+          <template v-slot:body-cell-status="props">
+            <q-td :props="props">
+              <q-chip
+                :color="getStatusColor(props.row.status)"
+                text-color="white"
+                size="sm"
               >
-                拒绝
-              </a-button>
-            </a-space>
+                {{ getStatusText(props.row.status) }}
+              </q-chip>
+            </q-td>
           </template>
-        </template>
-      </a-table>
-    </a-card>
 
-    <a-modal
-      v-model:visible="replyModalVisible"
-      title="处理工单"
-      @ok="handleReply"
-      @cancel="closeReplyModal"
-    >
-      <a-form :model="replyForm">
-        <a-form-item label="回复内容">
-          <a-textarea
-            v-model:value="replyForm.reply"
-            :rows="4"
-            placeholder="请输入回复内容"
-          />
-        </a-form-item>
-      </a-form>
-    </a-modal>
+          <!-- 图片列 -->
+          <template v-slot:body-cell-imgUrls="props">
+            <q-td :props="props">
+              <template v-if="!props.row.imgUrls">-</template>
+              <template v-else>
+                <q-btn
+                  flat
+                  dense
+                  :label="`${getUrlsCount(props.row.imgUrls)}张图片`"
+                  :icon-right="expandedImageRecord === props.row.id ? 'expand_less' : 'expand_more'"
+                  @click="toggleImageExpand(props.row.id)"
+                />
+                
+                <q-slide-transition>
+                  <div v-show="expandedImageRecord === props.row.id" class="q-mt-sm">
+                    <div class="row q-col-gutter-sm">
+                      <div
+                        v-for="(url, index) in props.row.imgUrls.split(',')"
+                        :key="index"
+                        class="col-auto"
+                      >
+                        <q-img
+                          :src="getImageUrl(url)"
+                          :ratio="1"
+                          width="80px"
+                          class="rounded-borders cursor-pointer"
+                          @click="previewImage(url)"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </q-slide-transition>
+              </template>
+            </q-td>
+          </template>
 
-    <a-modal
-      v-model:visible="rejectModalVisible"
-      title="拒绝工单"
-      @ok="handleReject"
-      @cancel="closeRejectModal"
-    >
-      <a-form :model="rejectForm">
-        <a-form-item label="拒绝理由">
-          <a-textarea
-            v-model:value="rejectForm.reply"
-            :rows="4"
-            placeholder="请输入拒绝理由"
+          <!-- 操作列 -->
+          <template v-slot:body-cell-action="props">
+            <q-td :props="props">
+              <div class="row q-gutter-xs">
+                <q-btn
+                  v-if="props.row.status === 1"
+                  color="primary"
+                  label="开始处理"
+                  size="sm"
+                  @click="startProcess(props.row)"
+                />
+                <q-btn
+                  v-if="props.row.status === 2"
+                  color="positive"
+                  label="完成处理"
+                  size="sm"
+                  @click="showReplyModal(props.row)"
+                />
+                <q-btn
+                  color="negative"
+                  label="拒绝"
+                  size="sm"
+                  @click="showRejectModal(props.row)"
+                  :disable="props.row.status === 2 || props.row.status === 3 || props.row.status === 4"
+                />
+              </div>
+            </q-td>
+          </template>
+        </q-table>
+      </q-card-section>
+    </q-card>
+
+    <!-- 回复对话框 -->
+    <q-dialog v-model="replyModalVisible" persistent>
+      <q-card style="min-width: 350px">
+        <q-card-section class="row items-center">
+          <div class="text-h6">处理工单</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section>
+          <q-input
+            v-model="replyForm.reply"
+            type="textarea"
+            label="回复内容"
+            :rules="[val => !!val.trim() || '请输入回复内容']"
+            autogrow
           />
-        </a-form-item>
-      </a-form>
-    </a-modal>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="取消" color="primary" v-close-popup />
+          <q-btn flat label="确定" color="primary" @click="handleReply" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- 拒绝对话框 -->
+    <q-dialog v-model="rejectModalVisible" persistent>
+      <q-card style="min-width: 350px">
+        <q-card-section class="row items-center">
+          <div class="text-h6">拒绝工单</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section>
+          <q-input
+            v-model="rejectForm.reply"
+            type="textarea"
+            label="拒绝理由"
+            :rules="[val => !!val.trim() || '请输入拒绝理由']"
+            autogrow
+          />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="取消" color="primary" v-close-popup />
+          <q-btn flat label="确定" color="negative" @click="handleReject" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- 图片预览 -->
+    <q-dialog v-model="previewDialog">
+      <q-card style="min-width: 300px">
+        <q-card-section class="row items-center">
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section class="q-pa-none">
+          <q-img :src="previewUrl" />
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -171,9 +237,6 @@ definePageMeta({
   middleware: 'auth'
 });
 import { ref, onMounted } from 'vue'
-import type { TablePaginationConfig } from 'ant-design-vue'
-import { message } from 'ant-design-vue'
-import type { Dayjs } from 'dayjs'
 
 interface WorkOrder {
   id: number;
@@ -208,85 +271,19 @@ interface QueryParams {
 }
 
 const columns = [
-  {
-    title: '工单编号',
-    dataIndex: 'id',
-    key: 'id',
+  { name: 'id', label: '工单编号', field: 'id', sortable: true },
+  { name: 'title', label: '标题', field: 'title', sortable: true },
+  { name: 'explanation', label: '说明', field: 'explanation' },
+  { name: 'imgUrls', label: '图片', field: 'imgUrls' },
+  { name: 'status', label: '状态', field: 'status', sortable: true },
+  { name: 'workType', label: '工单类型', field: 'workType', sortable: true,
+    format: (val: number) => typeOptions.find(opt => opt.value === val)?.label || '未知类型'
   },
-  {
-    title: '标题',
-    dataIndex: 'title',
-    key: 'title',
-  },
-  {
-    title: '说明',
-    dataIndex: 'explanation',
-    key: 'explanation',
-  },
-  {
-    title: '图片',
-    dataIndex: 'imgUrls',
-    key: 'imgUrls',
-    width: 200,
-  },
-  {
-    title: '状态',
-    dataIndex: 'status',
-    key: 'status',
-  },
-  {
-    title: '提交时间',
-    dataIndex: 'create_time',
-    key: 'create_time',
-  },
-  {
-    title: '用户名',
-    dataIndex: 'user_name',
-    key: 'user_name',
-  },
-  {
-    title: '工单类型',
-    dataIndex: 'workType',
-    key: 'workType',
-    customRender: ({ text }: { text: number }) => {
-      const typeMap: Record<number, string> = {
-        1: '故障/Bug',
-        2: '投诉',
-        3: '建议',
-        0: '其他',
-      }
-      return typeMap[text] || '未知类型'
-    }
-  },
-  {
-    title: '回复内容',
-    dataIndex: 'reply',
-    key: 'reply',
-    customRender: ({ text, record }: { text: string, record: WorkOrder }) => {
-      if (record.status === 1) {
-        return '待处理'
-      }
-      if (!text) {
-        return '-'
-      }
-      return text
-    }
-  },
-  {
-    title: '处理时间',
-    dataIndex: 'update_time',
-    key: 'update_time',
-    customRender: ({ text, record }: { text: string, record: WorkOrder }) => {
-      if (record.status === 1) {
-        return '-'
-      }
-      return text || '-'
-    }
-  },
-  {
-    title: '操作',
-    key: 'action',
-  },
+  { name: 'userName', label: '用户名', field: 'userName', sortable: true },
+  { name: 'createTime', label: '提交时间', field: 'createTime', sortable: true },
+  { name: 'reply', label: '回复内容', field: 'reply' },
+  { name: 'updateTime', label: '处理时间', field: 'updateTime', sortable: true },
+  { name: 'action', label: '操作', field: 'action' }
 ]
 
 const workOrders = ref<WorkOrder[]>([])
@@ -313,7 +310,6 @@ const queryParams = ref<QueryParams>({
   pageSize: 10,
 })
 
-const dateRange = ref<[Dayjs, Dayjs] | null>(null)
 
 const expandedImageRecord = ref<number | null>(null)
 
@@ -488,97 +484,23 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .work-order-container {
-  padding: 24px;
-}
+  padding: 20px;
 
-.query-form {
-  margin-bottom: 24px;
-}
+  .q-table {
+    background: white;
+  }
 
-.image-list {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
+  .image-preview {
+    max-width: 80px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s;
 
-.preview-image {
-  object-fit: cover;
-  border-radius: 4px;
-}
-
-.more-images {
-  width: 60px;
-  height: 60px;
-  background-color: rgba(0, 0, 0, 0.05);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  color: rgba(0, 0, 0, 0.45);
-  font-size: 14px;
-}
-
-.image-preview-container {
-  position: relative;
-}
-
-.image-expand-container {
-  position: absolute;
-  left: 0;
-  top: 100%;
-  background: white;
-  padding: 12px;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  z-index: 1;
-  margin-top: 4px;
-}
-
-.image-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 8px;
-  max-width: 400px;
-}
-
-.grid-image {
-  width: 100%;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 4px;
-}
-
-/* 适配移动端 */
-@media screen and (max-width: 768px) {
-  .query-form {
-    .ant-form-item {
-      margin-bottom: 16px;
-
-      &:last-child {
-        margin-bottom: 0;
-      }
+    &:hover {
+      transform: scale(1.05);
     }
-  }
-
-  .image-list {
-    gap: 4px;
-  }
-
-  .preview-image,
-  .more-images {
-    width: 50px;
-    height: 50px;
-  }
-
-  .image-grid {
-    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-    max-width: 300px;
-  }
-
-  .grid-image {
-    height: 60px;
   }
 }
 </style>

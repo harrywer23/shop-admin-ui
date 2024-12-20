@@ -3,59 +3,59 @@
     <div class="footer-content">
       <!-- 主要链接 -->
       <div class="footer-section">
-        <h3>{{ $t('footer.about') }}</h3>
+        <h3>{{ t('footer.about') }}</h3>
         <ul>
-          <li><NuxtLink to="/about">{{ $t('footer.about') }}</NuxtLink></li>
-          <li><NuxtLink to="/contact">{{ $t('footer.contact') }}</NuxtLink></li>
-          <li><NuxtLink to="/terms">{{ $t('footer.terms') }}</NuxtLink></li>
-          <li><NuxtLink to="/privacy">{{ $t('footer.privacy') }}</NuxtLink></li>
+          <li><NuxtLink to="/about">{{ t('footer.about') }}</NuxtLink></li>
+          <li><NuxtLink to="/contact">{{ t('footer.contact') }}</NuxtLink></li>
+          <li><NuxtLink to="/terms">{{ t('footer.terms') }}</NuxtLink></li>
+          <li><NuxtLink to="/privacy">{{ t('footer.privacy') }}</NuxtLink></li>
         </ul>
       </div>
 
       <!-- 帮助中心 -->
       <div class="footer-section">
-        <h3>{{ $t('footer.help') }}</h3>
+        <h3>{{ t('footer.help') }}</h3>
         <ul>
-          <li><NuxtLink to="/help">{{ $t('footer.help') }}</NuxtLink></li>
-          <li><NuxtLink to="/suggestions">{{ $t('footer.suggestions') }}</NuxtLink></li>
-          <li><NuxtLink to="/report">{{ $t('footer.report') }}</NuxtLink></li>
-          <li><NuxtLink to="/bug-report">{{ $t('footer.bugReport') }}</NuxtLink></li>
+          <li><NuxtLink to="/help">{{ t('footer.help') }}</NuxtLink></li>
+          <li><NuxtLink to="/suggestions">{{ t('footer.suggestions') }}</NuxtLink></li>
+          <li><NuxtLink to="/report">{{ t('footer.report') }}</NuxtLink></li>
+          <li><NuxtLink to="/bug-report">{{ t('footer.bugReport') }}</NuxtLink></li>
         </ul>
       </div>
 
       <!-- 友情链接 -->
       <div class="footer-section">
-        <h3>{{ $t('footer.friendLinks.title') }}</h3>
+        <h3>{{ t('footer.friendLinks.title') }}</h3>
         <ul>
-          <li><a href="#" target="_blank">{{ $t('footer.friendLinks.novel') }}</a></li>
-          <li><a href="#" target="_blank">{{ $t('footer.friendLinks.navigation') }}</a></li>
-          <li><a href="#" target="_blank">{{ $t('footer.friendLinks.world') }}</a></li>
+          <li><a href="#" target="_blank">{{ t('footer.friendLinks.novel') }}</a></li>
+          <li><a href="#" target="_blank">{{ t('footer.friendLinks.navigation') }}</a></li>
+          <li><a href="#" target="_blank">{{ t('footer.friendLinks.world') }}</a></li>
         </ul>
       </div>
 
       <!-- 联系方式 -->
       <div class="footer-section">
-        <h3>{{ $t('footer.contact') }}</h3>
+        <h3>{{ t('footer.contact') }}</h3>
         <div class="contact-info">
-          <p>{{ $t('footer.companyInfo') }}</p>
-          <p>{{ $t('footer.keywords') }}</p>
+          <p>{{ t('footer.companyInfo') }}</p>
+          <p>{{ t('footer.keywords') }}</p>
         </div>
       </div>
     </div>
 
     <!-- 版权信息 -->
     <div class="footer-bottom">
-      <p>{{ $t('footer.copyright', { year: new Date().getFullYear() }) }}</p>
-      <p>{{ $t('footer.description') }}</p>
-      <p>{{ $t('footer.disclaimer') }}</p>
+      <p>{{ t('footer.copyright', { year: new Date().getFullYear() }) }}</p>
+      <p>{{ t('footer.description') }}</p>
+      <p>{{ t('footer.disclaimer') }}</p>
     </div>
   </footer>
 </template>
 
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
+import { useI18n } from 'vue-i18n';
 
-const { t } = useI18n()
+const { t } = useI18n();
 </script>
 
 <style scoped>

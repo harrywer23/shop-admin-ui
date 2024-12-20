@@ -5,7 +5,7 @@
           <q-avatar>
             <q-img src="/favicon.webp"/>
           </q-avatar>
-          {{ $t('common.title') }}ADMIN
+         次元集市  系统管理
         </q-toolbar-title>
         <q-space />
         <q-select
@@ -103,33 +103,6 @@
             to="/register"
             icon="person_add"
           />
-               <q-btn
-            flat
-            :to="'/user/orders'"
-            class="q-mr-sm"
-            v-tooltip="{ text: t('nav.ordersTooltip') }"
-          >
-            <q-icon name="receipt_long" />
-            <span class="q-ml-xs">{{ t('nav.orders') }}</span>
-          </q-btn>
-
-          <q-btn
-            flat
-            :to="'/cart'"
-            class="q-mr-sm"
-            v-tooltip="{ text: t('nav.cartTooltip') }"
-          >
-            <q-icon name="shopping_cart" />
-            <span class="q-ml-xs">{{ t('nav.cart') }}</span>
-            <q-badge
-              v-if="cartItemCount"
-              color="red"
-              floating
-            >
-              {{ cartItemCount }}
-            </q-badge>
-          </q-btn>
-
         </template>
       </q-toolbar>
 
@@ -153,7 +126,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n';
 
@@ -189,7 +162,6 @@ const languageOptions = [
 const cartItemCount=ref(0);
 // 切换语言
 const handleLanguageChange = (newLang) => {
- //console.log(newLang)
   if (!newLang) return;
   // 保存语言选择到 cookie
   const langCookie = useCookie('user-language', {

@@ -8,7 +8,6 @@ import {  Dialog, useQuasar } from 'quasar';
 import {useRouter} from "vue-router";
 import {api} from "~/utils/axios";
 
-import PayaplCard from "~/components/payment/PaypalCardComponent.vue";
 import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 const token = useCookie('token');
@@ -284,18 +283,6 @@ async function onSubmit() {
         </div>
       </div>
     </div>
-
-    <!-- PayPal 充值对话框 -->
-    <q-dialog v-model="paypalDialog">
-      <PayaplCard
-          :amount="money"
-          :product-id="user.id"
-          :kind="5"
-          intro="充值余额"
-          product-name="充值余额"
-          url="/admin"
-      />
-    </q-dialog>
   </div>
 </template>
 

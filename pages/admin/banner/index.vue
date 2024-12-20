@@ -486,7 +486,7 @@ const showBannerDialog = (mode: 'add' | 'edit', banner?: Banner) => {
     formData.value = {
       ...banner,
       translationsI18n: {
-        zh: banner.title || '', // 使用现有标题作为中文标题
+        zh: banner.title || '',
         en: translationsObj.en || '',
         zhTw: translationsObj.zhTw || '',
         ja: translationsObj.ja || '',
@@ -549,7 +549,7 @@ const handleFileUpload = async (file: File) => {
   }
 }
 
-// 修改提交表���函数
+// 修改提交表单函数
 const handleSubmit = async () => {
   try {
     const url = dialogMode.value === 'add' ? '/sys/banner/add' : '/sys/banner/update'
@@ -557,8 +557,8 @@ const handleSubmit = async () => {
     // 构建提交数据
     const submitData = {
       ...formData.value,
-      position: typeof formData.value.position === 'object' 
-        ? formData.value.position.value 
+      position: typeof formData.value.position === 'object'
+        ? formData.value.position.value
         : formData.value.position,
       title: formData.value.translationsI18n.zh,
       translations: JSON.stringify(formData.value.translationsI18n),

@@ -112,57 +112,13 @@ export const PAYMENT_METHOD_OPTIONS = [
 
 // API 相关常量
 export const API_CONSTANTS = {
-  BASE_URL: 'http://127.0.0.1:8098',
-  // BASE_URL: 'https://admin.51x.uk',
+  //BASE_URL: 'http://127.0.0.1:8097',
+  BASE_URL: 'https://admin.51x.uk',
   IMAGE_BASE_URL: 'https://image.aiavr.uk/xinshijie',
   TIMEOUT: 30000,
   MAX_RETRIES: 3
 }
 
-// 验证规则
-export const VALIDATION_RULES = {
-  username: [
-    (val: string) => !!val || '请输入用户名',
-    (val: string) => /^[a-zA-Z0-9]+$/.test(val) || '用户名只能包含字母和数字',
-    (val: string) => val.length >= 5 && val.length <= 20 || '用户名长度必须在5-20个字符之间'
-  ],
-  password: [
-    (val: string) => !!val || '请输入密码',
-    (val: string) => val.length >= 5 && val.length <= 20 || '密码长度必须在5-20个字符之间'
-  ],
-  email: [
-    (val: string) => !!val || '请输入邮箱',
-    (val: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || '请输入正确的邮箱格式'
-  ],
-  phone: [
-    (val: string) => !!val || '请输入手机号',
-    (val: string) => /^[0-9-+]{5,20}$/.test(val) || '请输入正确的手机号格式'
-  ],
-  postCode: [
-    (val: string) => !!val || '请输入邮政编码',
-    (val: string) => /^[0-9a-zA-Z-]{3,10}$/.test(val) || '请输入正确的邮政编码格式'
-  ]
-}
-
-// Cookie 相关常量
-export const COOKIE_CONSTANTS = {
-  TOKEN: {
-    name: 'token',
-    maxAge: 60 * 60 * 24 * 7, // 7天
-    path: '/',
-    secure: process.env.NODE_ENV === 'production'
-  },
-  USER_INFO: {
-    name: 'userInfo',
-    maxAge: 60 * 60 * 24 * 7,
-    path: '/'
-  },
-  LANGUAGE: {
-    name: 'user-language',
-    maxAge: 60 * 60 * 24 * 365, // 1年
-    path: '/'
-  }
-}
 
 // 本地化相关常量
 export const LOCALE_CONSTANTS = {

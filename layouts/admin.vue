@@ -235,30 +235,12 @@
             </q-item-section>
 
             <q-item-section>
-              {{ $t(`user.logOut`) }}
+             退出
             </q-item-section>
           </q-item>
         </q-list>
 
       </q-scroll-area>
-      <q-img class="absolute-top" src="https://cdn.quasar.dev/img/material.png" style="height: 150px">
-        <div class="absolute-bottom bg-transparent">
-          <q-avatar  class="q-mb-sm" size="56px">
-            <q-img
-              :src="getImageUrl(user.imgUrl) || `/favicon.webp`" @error.once="e => { e.target.src = `/favicon.webp` }"
-            />
-          </q-avatar>
-          <div class="text-weight-bold">{{ user != null ? user.nickname : '待登录' }}</div>
-          <div v-if="user.email">
-            {{ user.email }}
-            <q-icon v-if="user.isEmail==2" name="warning" style="color: red"/>
-          </div>
-          <div v-if="user.isEmail==2">
-            ( {{ $t(`user.emailVerification`) }})
-          </div>
-        </div>
-      </q-img>
-
     </q-drawer>
 
     <q-page-container>
