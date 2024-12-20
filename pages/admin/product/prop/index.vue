@@ -1,14 +1,17 @@
 <template>
   <div class="prop-management">
-    <div class="page-header">
-      <h1 class="text-h5">商品属性管理</h1>
+    <q-card-section class="row items-center q-pb-none">
+      <div class="text-h6">商品属性管理</div>
+      <q-space />
       <q-btn
-        color="primary"
-        icon="add"
-        label="新增属性"
-        @click="showPropDialog('add')"
+          icon="arrow_back"
+          flat
+          round
+          dense
+          v-close-popup
+          @click="router.back()"
       />
-    </div>
+    </q-card-section>
 
     <!-- 属性列表 -->
     <q-table
@@ -249,8 +252,10 @@
 import { ref, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { api } from '~/utils/axios'
+import {useRouter} from "#vue-router";
 
 const $q = useQuasar()
+const router = useRouter()
 
 // 接口定义
 interface Translations {

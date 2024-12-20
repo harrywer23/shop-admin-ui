@@ -1,8 +1,17 @@
 <template>
   <div class="tags-edit">
     <q-card class="edit-card">
-      <q-card-section>
+      <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">标签管理</div>
+        <q-space />
+        <q-btn
+            icon="arrow_back"
+            flat
+            round
+            dense
+            v-close-popup
+            @click="router.back()"
+        />
       </q-card-section>
 
       <q-card-section>

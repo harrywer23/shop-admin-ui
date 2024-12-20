@@ -273,7 +273,7 @@ const editDialog = ref({
 const loadTransportList = async () => {
   loading.value = true
   try {
-    const response = await api.get('/admin/transport/list')
+    const response = await api.get('/sys/transport/list')
     if (response.data.code === 200) {
       transportList.value = response.data.data
     }
@@ -312,8 +312,8 @@ const handleSubmit = async () => {
   editDialog.value.loading = true
   try {
     const url = editDialog.value.isEdit
-      ? `/admin/transport/update`
-      : '/admin/transport/add'
+      ? `/sys/transport/update`
+      : '/sys/transport/add'
     const response = await api.post(url, editDialog.value.form)
 
     if (response.data.code === 200) {
@@ -344,7 +344,7 @@ const confirmDelete = (row: any) => {
     persistent: true
   }).onOk(async () => {
     try {
-      const response = await api.delete(`/admin/transport/delete/${row.id}`)
+      const response = await api.delete(`/sys/transport/delete/${row.id}`)
       if (response.data.code === 200) {
         $q.notify({
           type: 'positive',
@@ -365,7 +365,7 @@ const confirmDelete = (row: any) => {
 // 切换状态
 const toggleStatus = async (row: any) => {
   try {
-    const response = await api.post(`/admin/transport/status/${row.id}`, {
+    const response = await api.post(`/sys/transport/status/${row.id}`, {
       status: row.status === 1 ? 0 : 1
     })
     if (response.data.code === 200) {
@@ -387,7 +387,7 @@ const toggleStatus = async (row: any) => {
 // 查看运费规则
 const viewRules = (row: any) => {
   router.push({
-    path: '/admin/transport/rules',
+    path: '/sys/transport/rules',
     query: {
       id: row.id,
       name: row.name,

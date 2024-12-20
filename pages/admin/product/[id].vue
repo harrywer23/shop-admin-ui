@@ -72,8 +72,8 @@ const product = ref<any>({})
 // 获取商品详情
 const getProductDetail = async () => {
   try {
-    const prodId = route.params.id
-    const response = await api.get(`/api/product/${prodId}/detail`)
+    const prodId = route.params.prodId
+    const response = await api.get(`/sys/product/detail/${prodId}`)
     product.value =await response.data
     //console.log("product:",product)
   } catch (error) {

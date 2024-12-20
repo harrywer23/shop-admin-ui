@@ -400,7 +400,7 @@ const loadPayments = async () => {
       ...filters.value
     }
 
-    const response = await api.get('/admin/payment/list', { params })
+    const response = await api.get('/sys/payment/list', { params })
     const { code, data, total } = response.data
 
     if (code === 200) {
@@ -442,7 +442,7 @@ const confirmCancel = (order: PaymentOrder) => {
     persistent: true
   }).onOk(async () => {
     try {
-      const response = await api.post('/admin/payment/cancel', {
+      const response = await api.post('/sys/payment/cancel', {
         payId: order.payId
       })
 
@@ -480,7 +480,7 @@ const handleRefund = async () => {
   if (!refundDialog.value.currentOrder) return
 
   try {
-    const response = await api.post('/admin/payment/refund', {
+    const response = await api.post('/sys/payment/refund', {
       payId: refundDialog.value.currentOrder.payId,
       amount: refundDialog.value.amount,
       reason: refundDialog.value.reason

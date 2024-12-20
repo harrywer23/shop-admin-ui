@@ -182,8 +182,8 @@ onMounted(() => {
 
             <!-- 注册与忘记密码链接 -->
             <div class="extra-links">
-              <router-link to="/admin/register">{{ $t(`login.regis`) }}</router-link>
-              <router-link to="/admin/forgotPassword">忘记密码?</router-link>
+              <router-link to="/sys/register">{{ $t(`login.regis`) }}</router-link>
+              <router-link to="/sys/forgotPassword">忘记密码?</router-link>
             </div>
           </q-form>
         </q-card-section>

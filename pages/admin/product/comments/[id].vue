@@ -369,7 +369,7 @@ const getStatusColor = (status: number) => {
 // 加载商品信息
 const loadProductInfo = async () => {
   try {
-    const response = await api.get(`/admin/prod/info/${prodId}`)
+    const response = await api.get(`/sys/prod/info/${prodId}`)
     const { code, data } = response.data
     if (code === 200) {
       productInfo.value = data
@@ -392,7 +392,7 @@ const loadComments = async () => {
       endTime: filters.value.dateRange?.to
     }
 
-    const response = await api.get('/admin/comment/list', { params })
+    const response = await api.get('/sys/comment/list', { params })
     const { code, data, total } = response.data
 
     if (code === 200) {
@@ -423,7 +423,7 @@ const onRequest = async (props: any) => {
 // 处理审核
 const handleAudit = async (comment: any, status: number) => {
   try {
-    const response = await api.post('/admin/comment/audit', {
+    const response = await api.post('/sys/comment/audit', {
       prodCommId: comment.prodCommId,
       status: status
     })
@@ -467,7 +467,7 @@ const handleReply = async () => {
   }
 
   try {
-    const response = await api.post('/admin/comment/reply', {
+    const response = await api.post('/sys/comment/reply', {
       prodCommId: replyDialog.value.currentComment.prodCommId,
       replyContent: replyDialog.value.content
     })
@@ -507,7 +507,7 @@ const confirmDelete = (comment: any) => {
     persistent: true
   }).onOk(async () => {
     try {
-      const response = await api.delete(`/admin/comment/delete/${comment.prodCommId}`)
+      const response = await api.delete(`/sys/comment/delete/${comment.prodCommId}`)
 
       const { code, msg } = response.data
       if (code === 200) {

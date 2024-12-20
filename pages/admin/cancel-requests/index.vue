@@ -225,7 +225,7 @@ const loadRequests = async () => {
   loading.value = true
   try {
     const { page, rowsPerPage, sortBy, descending } = pagination.value
-    const response = await api.get('/admin/order/cancel/request/list', {
+    const response = await api.get('/sys/order/cancel/request/list', {
       params: {
         page,
         pageSize: rowsPerPage,
@@ -275,7 +275,7 @@ const handleReject = (request) => {
 const submitAudit = async () => {
   try {
     const { currentRequest, type, remark } = auditDialog.value
-    await api.post(`/admin/order/cancel/request/audit`, {
+    await api.post(`/sys/order/cancel/request/audit`, {
       id: currentRequest.id,
       remark : remark,
       type : type

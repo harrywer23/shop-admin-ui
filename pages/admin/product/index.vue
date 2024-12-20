@@ -7,7 +7,7 @@
           color="primary"
           icon="add"
           label="新增商品"
-          :to="'/admin/product/add'"
+          :to="'/sys/product/add'"
         />
       </div>
     </div>
@@ -127,7 +127,7 @@
               round
               color="primary"
               icon="edit"
-              :to="`/admin/product/edit/${props.row.prodId}`"
+              :to="`/sys/product/edit/${props.row.prodId}`"
             >
               <q-tooltip>编辑</q-tooltip>
             </q-btn>
@@ -449,7 +449,7 @@ const loadProducts = async () => {
       ...filters.value
     }
 
-    const response = await api.get('/admin/prod/list', { params })
+    const response = await api.get('/sys/prod/list', { params })
     const { code, data, total } = response.data
 
     if (code === 200) {
@@ -481,7 +481,7 @@ const onRequest = async (props: any) => {
 // 切换商品状态
 const toggleStatus = async (product: any) => {
   try {
-    const response = await api.post('/admin/prod/updateStatus', {
+    const response = await api.post('/sys/prod/updateStatus', {
       prodId: product.prodId,
       status: product.status === 1 ? 0 : 1
     })
@@ -514,7 +514,7 @@ const confirmDelete = (product: any) => {
     persistent: true
   }).onOk(async () => {
     try {
-      const response = await api.delete(`/admin/prod/delete/${product.prodId}`)
+      const response = await api.delete(`/sys/prod/delete/${product.prodId}`)
 
       const { code, msg } = response.data
       if (code === 200) {
@@ -553,7 +553,7 @@ const loadComments = async () => {
       prodId: commentsDialog.value.currentProdId
     }
 
-    const response = await api.get('/admin/comment/list', { params })
+    const response = await api.get('/sys/comment/list', { params })
     const { code, data, total } = response.data
 
     if (code === 200) {
@@ -591,7 +591,7 @@ const showReplyDialog = (comment: any) => {
 // 处理回复
 const handleReply = async () => {
   try {
-    const response = await api.post('/admin/comment/reply', {
+    const response = await api.post('/sys/comment/reply', {
       prodCommId: replyDialog.value.currentComment.prodCommId,
       replyContent: replyDialog.value.content
     })
@@ -625,7 +625,7 @@ const confirmDeleteComment = (comment: any) => {
     persistent: true
   }).onOk(async () => {
     try {
-      const response = await api.delete(`/admin/comment/delete/${comment.prodCommId}`)
+      const response = await api.delete(`/sys/comment/delete/${comment.prodCommId}`)
 
       const { code, msg } = response.data
       if (code === 200) {

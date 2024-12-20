@@ -41,7 +41,7 @@
               <q-icon name="search" />
             </template>
           </q-input>
-          
+
           <q-select
             v-model="statusFilter"
             :options="statusOptions"
@@ -170,50 +170,50 @@ const router = useRouter()
 
 // 表格列定义
 const columns = [
-  { 
-    name: 'orderNumber', 
-    label: '订单号', 
-    field: 'orderNumber', 
+  {
+    name: 'orderNumber',
+    label: '订单号',
+    field: 'orderNumber',
     align: 'left' as const,
-    sortable: true 
+    sortable: true
   },
-  { 
-    name: 'userName', 
-    label: '用户名', 
-    field: 'userName', 
-    align: 'left' as const 
+  {
+    name: 'userName',
+    label: '用户名',
+    field: 'userName',
+    align: 'left' as const
   },
-  { 
-    name: 'amount', 
-    label: '订��金额', 
-    field: 'amount', 
+  {
+    name: 'amount',
+    label: '订��金额',
+    field: 'amount',
     align: 'right' as const,
     format: (val: number) => `¥${val.toFixed(2)}`,
     sortable: true
   },
-  { 
-    name: 'reason', 
-    label: '取消原因', 
-    field: 'reason', 
-    align: 'left' as const 
+  {
+    name: 'reason',
+    label: '取消原因',
+    field: 'reason',
+    align: 'left' as const
   },
-  { 
-    name: 'createTime', 
-    label: '申请时间', 
-    field: 'createTime', 
+  {
+    name: 'createTime',
+    label: '申请时间',
+    field: 'createTime',
     align: 'center' as const,
-    sortable: true 
+    sortable: true
   },
-  { 
-    name: 'status', 
-    label: '状态', 
-    field: 'status', 
-    align: 'center' as const 
+  {
+    name: 'status',
+    label: '状态',
+    field: 'status',
+    align: 'center' as const
   },
-  { 
-    name: 'actions', 
-    label: '操作', 
-    align: 'center' as const 
+  {
+    name: 'actions',
+    label: '操作',
+    align: 'center' as const
   }
 ]
 
@@ -269,7 +269,7 @@ const displayedRequests = computed(() => {
     // 根据当前标签筛选
     if (activeTab.value === 'pending' && request.status !== 'pending') return false
     if (activeTab.value === 'processed' && request.status === 'pending') return false
-    
+
     // 搜索过滤
     if (filter.value) {
       const searchText = filter.value.toLowerCase()
@@ -278,12 +278,12 @@ const displayedRequests = computed(() => {
         return false
       }
     }
-    
+
     // 状态过滤
     if (statusFilter.value && request.reason !== statusFilter.value) {
       return false
     }
-    
+
     // 日期范围过滤
     if (dateRange.value.from && dateRange.value.to) {
       const requestDate = new Date(request.createTime)
@@ -293,10 +293,10 @@ const displayedRequests = computed(() => {
         return false
       }
     }
-    
+
     return true
   })
-  
+
   return filtered
 })
 
@@ -304,7 +304,7 @@ const displayedRequests = computed(() => {
 const loadCancelRequests = async () => {
   loading.value = true
   try {
-    const response = await api.get('/admin/order/cancel/list')
+    const response = await api.get('/sys/order/cancel/list')
     if (response.data.code === 200) {
       cancelRequests.value = response.data.data
       pendingCount.value = cancelRequests.value.filter(r => r.status === 'pending').length
@@ -348,12 +348,12 @@ const submitAudit = async () => {
 
   auditDialog.value.loading = true
   try {
-    const url = `/admin/order/cancel/${auditDialog.value.type}`
+    const url = `/sys/order/cancel/${auditDialog.value.type}`
     const response = await api.post(url, {
       requestId: auditDialog.value.currentRequest.id,
       remark: auditDialog.value.remark
     })
-    
+
     if (response.data.code === 200) {
       $q.notify({
         type: 'positive',
@@ -375,7 +375,7 @@ const submitAudit = async () => {
 
 // 查看订单详情
 const viewOrderDetails = (orderId: string) => {
-  router.push(`/admin/order/detail/${orderId}`)
+  router.push(`/sys/order/detail/${orderId}`)
 }
 
 // 初始化
@@ -392,10 +392,10 @@ onMounted(() => {
 
   .q-btn {
     margin: 0 4px;
-    
+
     &:hover {
       opacity: 0.8;
     }
   }
 }
-</style> 
+</style>

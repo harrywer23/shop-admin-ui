@@ -333,24 +333,24 @@ const router = useRouter()
 
 // 表格列定义
 const columns = [
-  { 
-    name: 'orderNumber', 
-    label: '订单号', 
-    field: 'orderNumber', 
+  {
+    name: 'orderNumber',
+    label: '订单号',
+    field: 'orderNumber',
     sortable: true,
     align: 'left' as const,
     style: 'max-width: 160px'
   },
-  { 
-    name: 'prodName', 
-    label: '商品名称', 
+  {
+    name: 'prodName',
+    label: '商品名称',
     field: 'prodName',
     align: 'left' as const,
     style: 'max-width: 200px'
   },
-  { 
-    name: 'total', 
-    label: '订单金额', 
+  {
+    name: 'total',
+    label: '订单金额',
     field: row => {
       return {
         total: row.total,
@@ -359,28 +359,28 @@ const columns = [
     },
     align: 'right' as const
   },
-  { 
-    name: 'userId', 
-    label: '用户ID', 
+  {
+    name: 'userId',
+    label: '用户ID',
     field: 'userId',
     align: 'left' as const
   },
-  { 
-    name: 'status', 
-    label: '状态', 
+  {
+    name: 'status',
+    label: '状态',
     field: 'status',
     align: 'center' as const
   },
-  { 
-    name: 'createTime', 
-    label: '创建时间', 
+  {
+    name: 'createTime',
+    label: '创建时间',
     field: 'createTime',
     sortable: true,
     align: 'left' as const
   },
-  { 
-    name: 'actions', 
-    label: '操作', 
+  {
+    name: 'actions',
+    label: '操作',
     field: 'actions',
     align: 'center' as const
   }
@@ -445,7 +445,7 @@ const deliveryCompanies = ref([])
 // 加载物流公司
 const loadDeliveryCompanies = async () => {
   try {
-    const response = await api.get('/admin/delivery/list')
+    const response = await api.get('/sys/delivery/list')
     const { code, data } = response.data
     if (code === 200) {
       deliveryCompanies.value = data
@@ -468,7 +468,7 @@ const loadOrders = async () => {
       endTime: filters.value.dateRange?.to
     }
 
-    const response = await api.get('/admin/order/list', { params })
+    const response = await api.get('/sys/order/list', { params })
     const { code, data, total } = response.data
 
     if (code === 200) {
@@ -536,7 +536,7 @@ const showShipDialog = (order: any) => {
 // 处理发货
 const handleShip = async () => {
   try {
-    const response = await api.post('/admin/order/ship', shipDialog.value.data)
+    const response = await api.post('/sys/order/ship', shipDialog.value.data)
     const { code, msg } = response.data
 
     if (code === 200) {
@@ -577,7 +577,7 @@ const showRefundDialog = (order: any) => {
 // 处理退款
 const handleRefund = async () => {
   try {
-    const response = await api.post('/admin/order/refund', refundDialog.value.data)
+    const response = await api.post('/sys/order/refund', refundDialog.value.data)
     const { code, msg } = response.data
 
     if (code === 200) {
@@ -608,7 +608,7 @@ const confirmCancel = (order: any) => {
     persistent: true
   }).onOk(async () => {
     try {
-      const response = await api.get(`/admin/order/cancel/${order.orderId}`)
+      const response = await api.get(`/sys/order/cancel/${order.orderId}`)
       const { code, msg } = response.data
 
       if (code === 200) {
@@ -642,7 +642,7 @@ const showRemarkDialog = (order: any) => {
 // 处理备注
 const handleRemark = async () => {
   try {
-    const response = await api.post('/admin/order/remark', remarkDialog.value.data)
+    const response = await api.post('/sys/order/remark', remarkDialog.value.data)
     const { code, msg } = response.data
 
     if (code === 200) {
@@ -666,7 +666,7 @@ const handleRemark = async () => {
 
 // 查看订单详情
 const viewOrderDetail = (order: any) => {
-  router.push(`/admin/order/detail?orderNumber=${order.orderNumber}`)
+  router.push(`/sys/order/detail?orderNumber=${order.orderNumber}`)
 }
 
 // 初始化
@@ -708,7 +708,7 @@ onMounted(() => {
   .orders-table {
     background: white;
     border-radius: 8px;
-    
+
     .q-table__card {
       box-shadow: none;
     }
@@ -735,7 +735,7 @@ onMounted(() => {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        
+
         &:hover {
           position: relative;
           overflow: visible;
@@ -763,7 +763,7 @@ onMounted(() => {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        
+
         &:hover {
           position: relative;
           overflow: visible;

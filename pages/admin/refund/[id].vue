@@ -220,7 +220,7 @@ const imagePreview = reactive({
 // 获取退款详情
 const loadRefundDetails = async () => {
   try {
-    const response = await api.get(`/admin/refund/info/${route.params.id}`)
+    const response = await api.get(`/sys/refund/info/${route.params.id}`)
     const { code, data } = response.data
 
     if (code === 200) {

@@ -269,7 +269,7 @@ const activeLanguage = ref('zh-CN')
 // 获取分类列表数据
 const fetchCategories = async () => {
   try {
-    const res = await api.get('/category/list')
+    const res = await api.get('/sys/category/list')
     //console.log('原始数据:', res.data.data)
     if (res.data.succ) {
       // 处理返回的数据，解析国际化名称
@@ -432,7 +432,7 @@ const saveCategory = async () => {
     }
 
     const res = await api.post(
-      isEditMode.value ? `/admin/category/edit` : '/admin/category/add',
+      isEditMode.value ? `/sys/category/edit` : '/sys/category/add',
       data
     )
 
@@ -493,7 +493,7 @@ const confirmDelete = async () => {
 
 // 跳转到创建产品页面
 const goToCreateProduct = (category: Category) => {
-  router.push({ path: '/admin/product/create', query: { categoryId: category.categoryId } })
+  router.push({ path: '/sys/product/create', query: { categoryId: category.categoryId } })
 }
 
 // 在树形结构中显示当前语言的名称

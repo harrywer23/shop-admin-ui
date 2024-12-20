@@ -20,7 +20,7 @@ const vip = ref(0);
 const vipExpirationTime = ref(null);
 
 async function getDetail() {
-  const response = await api.get(`/admin/systemUser/getInfo`);
+  const response = await api.get(`/sys/systemUser/getInfo`);
   const data = response.data;
   if (data.code == 200) {
     user.value=data.data;
@@ -58,14 +58,14 @@ function openPayPalDialog (){
     }).onOk(async () => {
       router.push('/login'); // Redirect to login page
     }).onCancel(async () => {
-      // router.push('/admin/album'); // Redirect to login page
+      // router.push('/sys/album'); // Redirect to login page
     });
   }
 };
 const cardId=ref("");
 
 async function onSubmit() {
-  const response = await api.post("/admin/rechargeCards/use", JSON.stringify({
+  const response = await api.post("/sys/rechargeCards/use", JSON.stringify({
     cardId: cardId.value,
   }), {
     headers: {
@@ -110,7 +110,7 @@ async function onSubmit() {
           color="primary"
           :label="$t('user.edit')"
           icon="edit"
-          to="/admin/users/userEdit"
+          to="/sys/users/userEdit"
       />
     </div>
 

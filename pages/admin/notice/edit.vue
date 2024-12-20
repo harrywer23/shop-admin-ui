@@ -178,7 +178,7 @@ const formData = ref({
 // 获取公告详情
 const getNoticeDetail = async (id: string) => {
   try {
-    const response = await api.get(`/admin/notice/detail/${id}`)
+    const response = await api.get(`/sys/notice/detail/${id}`)
     const { code, data } = response.data
     if (code === 200) {
       formData.value = {
@@ -211,7 +211,7 @@ const getNoticeDetail = async (id: string) => {
 // 提交表单
 const handleSubmit = async () => {
   try {
-    const url = isEdit.value ? '/admin/notice/update' : '/admin/notice/add'
+    const url = isEdit.value ? '/sys/notice/update' : '/sys/notice/add'
     const submitData = {
       ...formData.value,
       title: formData.value.translationsI18n.zh,

@@ -33,7 +33,7 @@ async function onSubmit() {
 }
 async  function sendEmailCode(){
   try {
-    const response = await api.get("/admin/systemUser/sendCheckEmailCode?email="+email.value, {
+    const response = await api.get("/sys/systemUser/sendCheckEmailCode?email="+email.value, {
       headers: {
         'Content-Type': 'application/json',
       },

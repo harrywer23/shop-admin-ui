@@ -115,7 +115,7 @@
                 <div class="col-12 col-md-6">
                   <q-input
                     v-model="formData.translationsI18n.zhTw"
-                    label="繁體中文標題"
+                    label="繁體中文標"
                     outlined
                     dense
                   />
@@ -304,6 +304,7 @@ import { api } from '~/utils/axios'
 
 const $q = useQuasar()
 const config = useRuntimeConfig()
+const IMAGE_BASE_URL = config.public.imageBaseUrl || 'https://image.aiavr.uk/xinshijie'
 
 // Banner 接口定义
 interface Translations {
@@ -439,7 +440,7 @@ const loadBanners = async () => {
   loading.value = true
   try {
     const params = tansParams(pagination.value)
-    const response = await api.get(`/admin/banner/list?${params}`)
+    const response = await api.get(`/sys/banner/list?${params}`)
     const { code, data, total } = response.data
 
     if (code === 200) {
@@ -506,7 +507,14 @@ const showBannerDialog = (mode: 'add' | 'edit', banner?: Banner) => {
   showDialog.value = true
 }
 
-// 处理文件上传
+// 添加获取图片URL的方法
+const getImageUrl = (url: string): string => {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  return `${IMAGE_BASE_URL}${url}`
+}
+
+// 修改文件上传处理方法
 const handleFileUpload = async (file: File) => {
   if (!file) return
 
@@ -522,7 +530,7 @@ const handleFileUpload = async (file: File) => {
     const { code, data, msg } = response.data
 
     if (code === 200) {
-      formData.value.imgUrl = data.sourceUrl
+      formData.value.imgUrl = data.sourceUrl // 直接使用返回的sourceUrl
       $q.notify({
         type: 'positive',
         message: '上传成功'
@@ -541,18 +549,18 @@ const handleFileUpload = async (file: File) => {
   }
 }
 
-// 修改提交表单函数
+// 修改提交表���函数
 const handleSubmit = async () => {
   try {
-    const url = dialogMode.value === 'add' ? '/admin/banner/add' : '/admin/banner/update'
+    const url = dialogMode.value === 'add' ? '/sys/banner/add' : '/sys/banner/update'
 
-    // 将国际化对象转换为 JSON 字符串
+    // 构建提交数据
     const submitData = {
       ...formData.value,
-      position: typeof formData.value.position === 'object'
-        ? formData.value.position.value
+      position: typeof formData.value.position === 'object' 
+        ? formData.value.position.value 
         : formData.value.position,
-      title: formData.value.translationsI18n.zh, // 使用中文标题作为主标题
+      title: formData.value.translationsI18n.zh,
       translations: JSON.stringify(formData.value.translationsI18n),
       descriptions: JSON.stringify(formData.value.descriptionsI18n)
     }
@@ -582,7 +590,7 @@ const handleSubmit = async () => {
 // 切换状态
 const toggleStatus = async (banner: Banner) => {
   try {
-    const response = await api.get(`/admin/banner/status`, {
+    const response = await api.get(`/sys/banner/status`, {
       params: {
         bannerId: banner.bannerId,
         status: !banner.status
@@ -617,7 +625,7 @@ const confirmDelete = (banner: Banner) => {
     persistent: true
   }).onOk(async () => {
     try {
-      const response = await api.delete(`/admin/banner/del`, {
+      const response = await api.delete(`/sys/banner/del`, {
         params: { bannerId: banner.bannerId }
       })
 

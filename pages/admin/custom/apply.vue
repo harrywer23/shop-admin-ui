@@ -115,7 +115,7 @@
             <!-- 参考图片上传部分 -->
             <div class="q-mb-md">
               <div class="text-subtitle2 q-mb-sm">{{ t('custom.apply.referenceImages') }}</div>
-              
+
               <!-- 图片上传区域 -->
               <div class="upload-section q-mb-md">
                 <q-file
@@ -136,7 +136,7 @@
                     <q-icon name="close" class="cursor-pointer" @click.stop="clearFiles" />
                   </template>
                 </q-file>
-                
+
                 <div class="text-caption text-grey q-mt-sm">
                   {{ t('custom.apply.imageNote') }}
                 </div>
@@ -423,7 +423,7 @@
 import { ref, onMounted, onUnmounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { api } from '@/utils/axios'
+import { api } from '~/utils/axios'
 import { useQuasar } from 'quasar'
 import { date } from 'quasar'
 import TinyMce from '~/components/tiny-mce/index.vue'
@@ -555,7 +555,7 @@ const compressImage = async (file: File): Promise<Blob> => {
         const canvas = document.createElement('canvas')
         let width = img.width
         let height = img.height
-        
+
         // 设置最大尺寸
         const maxSize = 1200
         if (width > maxSize || height > maxSize) {
@@ -728,7 +728,7 @@ const submitApplication = async () => {
 
   try {
     submitting.value = true
-    
+
     // 上传图片
     const imageUrls = []
     if (formData.value.referenceImages.length > 0) {

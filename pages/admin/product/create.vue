@@ -807,7 +807,7 @@ const fetchCategoryName = async () => {
 // 获取标签列表
 const getTagList = async () => {
   try {
-    const response = await api.get('/api/prod/prodTag/listTagList')
+    const response = await api.get('/sys/prod/prodTag/listTagList')
     const result: ApiResponse<ProdTag[]> = await response.data
 
     if (result.code === 200) {
@@ -1150,7 +1150,7 @@ async function handleFileUpload(files: File[]) {
       formData.append('files', file)
     })
 
-    const response = await api.post('/api/upload/batch', {formData
+    const response = await api.post('/sys/upload/batch', {formData
     })
 
     const result = await response.data

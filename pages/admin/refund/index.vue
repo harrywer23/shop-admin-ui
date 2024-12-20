@@ -251,7 +251,7 @@ const loadRefunds = async () => {
       endTime: filters.dateRange?.to
     }
 
-    const response = await api.get('/admin/refund/list', { params })
+    const response = await api.get('/sys/refund/list', { params })
     const { code, data } = response.data
 
     if (code === 200) {
@@ -288,7 +288,7 @@ const resetFilters = () => {
 
 // 查看详情
 const viewDetails = (refund: any) => {
-  router.push(`/admin/refund/${refund.refundId}`)
+  router.push(`/sys/refund/${refund.refundId}`)
 }
 
 // 处理退款审核
@@ -310,7 +310,7 @@ const submitReview = async () => {
   }
 
   try {
-    const response = await api.post('/admin/refund/review', {
+    const response = await api.post('/sys/refund/review', {
       refundId: reviewDialog.currentRefund.refundId,
       approved: reviewDialog.approve,
       message: reviewDialog.message

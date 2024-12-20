@@ -167,7 +167,7 @@ const loadDeliveries = async () => {
       order: pagination.value.descending ? 'desc' : 'asc'
     }
 
-    const response = await api.get('/admin/delivery/list', { params })
+    const response = await api.get('/sys/delivery/list', { params })
     const { code, data, total } = response.data
 
     if (code === 200) {
@@ -216,7 +216,7 @@ const showDeliveryDialog = (mode: 'add' | 'edit', delivery?: Delivery) => {
 // 提交表单
 const handleSubmit = async () => {
   try {
-    const url = dialogMode.value === 'add' ? '/admin/delivery/add' : '/admin/delivery/update'
+    const url = dialogMode.value === 'add' ? '/sys/delivery/add' : '/sys/delivery/update'
     const response = await api.post(url, formData.value)
 
     const { code, msg } = response.data
@@ -248,7 +248,7 @@ const confirmDelete = (delivery: Delivery) => {
     persistent: true
   }).onOk(async () => {
     try {
-      const response = await api.delete(`/admin/delivery/delete/${delivery.dvyId}`)
+      const response = await api.delete(`/sys/delivery/delete/${delivery.dvyId}`)
 
       const { code, msg } = response.data
       if (code === 200) {

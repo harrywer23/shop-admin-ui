@@ -1,10 +1,18 @@
 <template>
   <div class="sku-edit">
     <q-card class="edit-card">
-      <q-card-section>
+      <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">SKU 管理</div>
+        <q-space />
+        <q-btn
+            icon="arrow_back"
+            flat
+            round
+            dense
+            v-close-popup
+            @click="router.back()"
+        />
       </q-card-section>
-
       <q-card-section>
         <!-- SKU 规格设置 -->
         <section class="section">
@@ -112,7 +120,9 @@
             </div>
           </div>
         </section>
-
+        <source-price-component
+            :source-url="sourceUrl"
+        />
         <!-- 底部按钮 -->
         <div class="row justify-end q-mt-xl">
           <q-btn
@@ -160,6 +170,7 @@ interface ProdPropValue {
 
 interface Sku {
   skuId: number | string
+  tempId: string
   prodId: number | string
   properties: string
   oriPrice: number
@@ -324,18 +335,31 @@ watch(() => skuProps.value, (newProps) => {
   })
 }, { deep: true })
 
-function handleDeleteSku(skuId: number | string) {
-  $q.dialog({
-    title: '确认删除',
-    message: '确定要删除这个 SKU 吗？',
-    cancel: true,
-    persistent: true
-  }).onOk(() => {
-    skuList.value = skuList.value.filter(sku => sku.skuId !== skuId)
-    $q.notify({
-      type: 'positive',
-      message: 'SKU 已删除'
-    })
+function handleDeleteSku({ skuId, tempId, properties }: { skuId: number | string, tempId: string, properties: string }) {
+  console.log('父组件收到删除请求:', { skuId, tempId, properties })
+
+  // 使用 properties 作为备用标识符
+  const updatedList = skuList.value.filter(sku => {
+    if (tempId && sku.tempId) {
+      return sku.tempId !== tempId
+    }
+    if (skuId && sku.skuId) {
+      return sku.skuId !== skuId
+    }
+    // 如果都没有，使用 properties 匹配
+    return sku.properties !== properties
+  })
+
+  console.log('更新前:', skuList.value.length)
+  console.log('更新后:', updatedList.length)
+
+  // 使用新数组更新
+  skuList.value = updatedList
+
+  $q.notify({
+    type: 'positive',
+    message: 'SKU 已删除',
+    position: 'top'
   })
 }
 </script>

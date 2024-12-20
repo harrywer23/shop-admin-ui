@@ -10,7 +10,6 @@ const name = ref('')
 const email = ref('')
 const password = ref('')
 const uuid = ref('')
-const captcha = ref('')
 const accept = ref(false)
 const showPassword = ref(false)
 
@@ -56,7 +55,7 @@ async function onSubmit() {
 
     //console.log('注册数据:', registerData)
 
-    const response = await api.post('/register', registerData)
+    const response = await api.post('/sysUser/register', registerData)
     const data = response.data
 
     if (data && data.code === 200) {
@@ -102,47 +101,47 @@ function togglePasswordVisibility() {
 
         <q-card-section class="q-pt-none">
           <q-form
-            class="q-gutter-md"
-            @reset="onReset"
-            @submit.prevent="onSubmit"
+              class="q-gutter-md"
+              @reset="onReset"
+              @submit.prevent="onSubmit"
           >
             <!-- 用户名输入 -->
             <q-input
-              v-model="name"
-              :label="$t('login.name') + ' *'"
-              :rules="usernameRules"
-              filled
-              lazy-rules
+                v-model="name"
+                :label="$t('login.name') + ' *'"
+                :rules="usernameRules"
+                filled
+                lazy-rules
             />
 
             <!-- 邮箱输入 -->
             <q-input
-              v-model="email"
-              :label="$t('login.email') + ' *'"
-              :rules="[
+                v-model="email"
+                :label="$t('login.email') + ' *'"
+                :rules="[
                 val => !!val || 'Email is required',
                 val => val.length >= 5 && val.length <= 30 || 'Email must be between 5 and 30 characters',
                 val => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || 'Invalid email format'
               ]"
-              filled
-              type="email"
-              lazy-rules
+                filled
+                type="email"
+                lazy-rules
             />
 
             <!-- 密码输入 -->
             <q-input
-              v-model="password"
-              :label="$t('login.password') + ' *'"
-              :rules="passwordRules"
-              :type="showPassword ? 'text' : 'password'"
-              filled
-              lazy-rules
+                v-model="password"
+                :label="$t('login.password') + ' *'"
+                :rules="passwordRules"
+                :type="showPassword ? 'text' : 'password'"
+                filled
+                lazy-rules
             >
               <template #append>
                 <q-icon
-                  :name="showPassword ? 'visibility_off' : 'visibility'"
-                  class="cursor-pointer"
-                  @click="togglePasswordVisibility"
+                    :name="showPassword ? 'visibility_off' : 'visibility'"
+                    class="cursor-pointer"
+                    @click="togglePasswordVisibility"
                 />
               </template>
             </q-input>
@@ -158,15 +157,15 @@ function togglePasswordVisibility() {
 
             <!-- 提交按钮 -->
             <q-btn
-              :label="$t('login.regis')"
-              color="primary"
-              class="full-width"
-              type="submit"
+                :label="$t('login.regis')"
+                color="primary"
+                class="full-width"
+                type="submit"
             />
 
             <!-- 登录链接 -->
             <div class="extra-links">
-              <router-link to="/login" class="login-link">
+              <router-link to="/" class="login-link">
                 {{ $t('login.login') }}
               </router-link>
             </div>

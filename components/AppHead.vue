@@ -133,20 +133,20 @@
         </template>
       </q-toolbar>
 
-      <q-tabs align="left">
-        <q-route-tab to="/" :label="$t('nav.home')" />
-        <q-route-tab to="/product/list?parentId=1" :label="$t('nav.anime')" />
-        <q-route-tab to="/product/list?parentId=2" :label="$t('nav.games')" />
-        <q-route-tab to="/product/list?parentId=3" :label="$t('nav.movies')" />
-        <q-route-tab to="/product/list?parentId=4" :label="$t('nav.novels')" />
-        <q-route-tab to="/product/list?parentId=5" :label="t('nav.comprehensive')" />
-<q-route-tab to="/custom" :label="t('nav.custom')" />
-<q-route-tab to="/forum" :label="t('nav.community')" />
-        <q-route-tab to="/user" :label="$t('nav.user')" />
-      </q-tabs>
-      <q-banner inline-actions class="text-white bg-red">
-        {{ t('common.maintenance') }}
-      </q-banner>
+<!--      <q-tabs align="left">-->
+<!--        <q-route-tab to="/" :label="$t('nav.home')" />-->
+<!--        <q-route-tab to="/product/list?parentId=1" :label="$t('nav.anime')" />-->
+<!--        <q-route-tab to="/product/list?parentId=2" :label="$t('nav.games')" />-->
+<!--        <q-route-tab to="/product/list?parentId=3" :label="$t('nav.movies')" />-->
+<!--        <q-route-tab to="/product/list?parentId=4" :label="$t('nav.novels')" />-->
+<!--        <q-route-tab to="/product/list?parentId=5" :label="t('nav.comprehensive')" />-->
+<!--<q-route-tab to="/custom" :label="t('nav.custom')" />-->
+<!--<q-route-tab to="/forum" :label="t('nav.community')" />-->
+<!--        <q-route-tab to="/user" :label="$t('nav.user')" />-->
+<!--      </q-tabs>-->
+<!--      <q-banner inline-actions class="text-white bg-red">-->
+<!--        {{ t('common.maintenance') }}-->
+<!--      </q-banner>-->
     </q-header>
 
 

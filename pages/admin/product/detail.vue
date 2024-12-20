@@ -1,14 +1,5 @@
 <template>
   <div class="product-detail">
-    <!-- 面包屑导航 -->
-    <div class="breadcrumb q-pa-md bg-white">
-      <q-breadcrumbs>
-        <q-breadcrumbs-el label="商品管理" icon="shopping_bag" />
-        <q-breadcrumbs-el label="商品列表" to="/admin/product/list" />
-        <q-breadcrumbs-el :label="productInfo?.prodName || '商品详情'" />
-      </q-breadcrumbs>
-    </div>
-
     <!-- 主要内容区域 -->
     <div class="product-content q-pa-md row q-col-gutter-md">
       <!-- 左侧图片区域 -->
@@ -65,11 +56,11 @@
         <q-card flat bordered class="product-info">
           <q-card-section>
             <!-- 商品名称 -->
-            <div class="text-h6">{{ productInfo?.prodName }}</div>
+            <div class="text-h6">{{ getCurrentLanguageName(productInfo?.translations, productInfo?.prodName)  }}</div>
             <div class="text-subtitle2 text-grey">编码: {{ productInfo?.prodCode || '暂无' }}</div>
 
             <!-- 商品简介 -->
-            <div class="brief q-mt-md">{{ productInfo?.brief }}</div>
+<!--            <div class="brief q-mt-md">{{ productInfo?.brief }}</div>-->
 
             <!-- 价格信息 -->
             <div class="price-info q-mt-lg">
@@ -90,24 +81,24 @@
                   <template v-slot:avatar>
                     <q-icon name="event" color="orange" />
                   </template>
-                  <div class="text-subtitle1">预售商品</div>
+                  <div class="text-subtitle1">{{ t('product.presell.title') }}</div>
                   <div class="row q-col-gutter-md q-mt-sm">
                     <div class="col-12 col-md-6">
-                      <div class="text-caption">预售价格</div>
+                      <div class="text-caption">{{ t('product.presell.price') }}</div>
                       <div class="text-h6 text-orange">¥{{ productInfo.presellPrice }}</div>
                     </div>
                     <div class="col-12 col-md-6">
-                      <div class="text-caption">定金</div>
+                      <div class="text-caption">{{ t('product.presell.deposit') }}</div>
                       <div class="text-h6 text-orange">¥{{ productInfo.presellDeposit }}</div>
                     </div>
                   </div>
                   <div class="row q-col-gutter-md q-mt-sm">
                     <div class="col-12">
-                      <div class="text-caption">预售时间</div>
+                      <div class="text-caption">{{ t('product.presell.presellTime') }}</div>
                       <div>{{ formatDateTime(productInfo.presellStartTime) }} ~ {{ formatDateTime(productInfo.presellEndTime) }}</div>
                     </div>
                     <div class="col-12">
-                      <div class="text-caption">发货时间</div>
+                      <div class="text-caption">{{ t('product.presell.deliveryTime') }}</div>
                       <div>{{ formatDateTime(productInfo.presellDeliveryTime) }}</div>
                     </div>
                   </div>
@@ -116,33 +107,16 @@
             </template>
 
             <!-- 秒杀信息 -->
-            <!-- <template v-if="productInfo?.prodType === ProductType.GROUP">
-              <div class="seckill-info q-mt-md">
-                <q-banner class="bg-red-1">
-                  <template v-slot:avatar>
-                    <q-icon name="flash_on" color="red" />
-                  </template>
-                  <div class="text-subtitle1">团购商品</div>
-                  <div class="row q-col-gutter-md q-mt-sm">
-                    <div class="col-12">
-                      <div class="text-caption">团购价格</div>
-                      <div>{{ formatDateTime(productInfo.seckillStartTime) }} ~ {{ formatDateTime(productInfo.seckillEndTime) }}</div>
-                    </div>
-                  </div>
-                </q-banner>
-              </div>
-            </template> -->
-
             <template v-if="productInfo?.prodType === ProductType.SECKILL">
               <div class="seckill-info q-mt-md">
                 <q-banner class="bg-red-1">
                   <template v-slot:avatar>
                     <q-icon name="flash_on" color="red" />
                   </template>
-                  <div class="text-subtitle1">秒杀商品</div>
+                  <div class="text-subtitle1">{{ t('product.seckill.title') }}</div>
                   <div class="row q-col-gutter-md q-mt-sm">
                     <div class="col-12">
-                      <div class="text-caption">秒杀时间</div>
+                      <div class="text-caption">{{ t('product.seckill.period') }}</div>
                       <div>{{ formatDateTime(productInfo.seckillStartTime) }} ~ {{ formatDateTime(productInfo.seckillEndTime) }}</div>
                     </div>
                   </div>
@@ -157,22 +131,22 @@
                   <template v-slot:avatar>
                     <q-icon name="group" color="green" />
                   </template>
-                  <div class="text-subtitle1">团购商品</div>
+                  <div class="text-subtitle1">{{ t('product.group.title') }}</div>
                   <div class="row q-col-gutter-md q-mt-sm">
                     <!-- 团购价格 -->
                     <div class="col-12 col-md-6">
-                      <div class="text-caption">团购价格</div>
+                      <div class="text-caption">{{ t('product.group.price') }}</div>
                       <div class="text-h6 text-green">
                         ¥{{ hasSku ? currentSku?.groupPrice : productInfo.groupPrice }}
                       </div>
                       <div class="text-caption text-grey">
-                        原价: ¥{{ hasSku ? currentSku?.oriPrice : productInfo.oriPrice }}
+                        {{ t('product.group.originalPrice') }}: ¥{{ hasSku ? currentSku?.oriPrice : productInfo.oriPrice }}
                       </div>
                     </div>
 
                     <!-- 成团进度 -->
                     <div class="col-12 col-md-6">
-                      <div class="text-caption">成团进度</div>
+                      <div class="text-caption">{{ t('product.group.progress') }}</div>
                       <div class="progress-info">
                         <q-linear-progress
                           :value="groupProgress"
@@ -180,8 +154,8 @@
                           class="q-mb-sm"
                         />
                         <div class="text-caption">
-                          已参团{{ hasSku ? currentSku?.groupJoinedNum || 0 : productInfo.groupJoinedNum || 0 }}人
-                          / 最低{{ hasSku ? currentSku?.groupMinNum || 2 : productInfo.groupMinNum || 2 }}人成团
+                          {{ t('product.group.joined', { count: hasSku ? currentSku?.groupJoinedNum || 0 : productInfo.groupJoinedNum || 0 }) }}
+                          / {{ t('product.group.minMembers', { count: hasSku ? currentSku?.groupMinNum || 2 : productInfo.groupMinNum || 2 }) }}
                         </div>
                       </div>
                     </div>
@@ -196,7 +170,7 @@
                         </q-item-section>
                         <q-item-section>
                           <div class="text-caption">
-                            达到最低{{ hasSku ? currentSku?.groupMinNum || 2 : productInfo.groupMinNum || 2 }}人即可成团
+                            {{ t('product.group.rules.minMember', { count: hasSku ? currentSku?.groupMinNum || 2 : productInfo.groupMinNum || 2 }) }}
                           </div>
                         </q-item-section>
                       </q-item>
@@ -206,7 +180,7 @@
                         </q-item-section>
                         <q-item-section>
                           <div class="text-caption">
-                            成团后可享受团购价¥{{ hasSku ? currentSku?.groupPrice : productInfo.groupPrice }}
+                            {{ t('product.group.rules.groupPrice', { price: hasSku ? currentSku?.groupPrice : productInfo.groupPrice }) }}
                           </div>
                         </q-item-section>
                       </q-item>
@@ -216,7 +190,7 @@
                         </q-item-section>
                         <q-item-section>
                           <div class="text-caption">
-                            未成团将自动取消订单并退款
+                            {{ t('product.group.rules.autoCancel') }}
                           </div>
                         </q-item-section>
                       </q-item>
@@ -229,12 +203,12 @@
             <!-- SKU 选择区域，只在有 SKU 时显示 -->
             <div v-if="hasSku" class="sku-selection q-mt-lg">
               <div v-for="(prop, index) in productInfo?.propList" :key="index" class="sku-prop q-mb-lg">
-                <div class="prop-name q-mb-sm">{{ prop.propName }}</div>
+                <div class="prop-name q-mb-sm">{{ getCurrentLanguageName( prop.translations,prop.propName) }}</div>
                 <div class="prop-values">
                   <q-btn
                     v-for="value in prop.values"
                     :key="value.valueId"
-                    :label="value.propValue"
+                    :label="getCurrentLanguageName( value.translations,value.propValue) "
                     :class="{
                       'selected': isSelected(prop.propId, value.valueId),
                       'disabled': !isSkuValueAvailable(prop.propId, value.valueId),
@@ -253,11 +227,11 @@
             <div class="stock-info q-mt-lg">
               <div class="row q-col-gutter-md">
                 <div class="col-auto">
-                  <div class="text-caption">库存</div>
+                  <div class="text-caption">{{ t('product.detail.stock') }}</div>
                   <div class="text-subtitle1">{{ productInfo?.totalStocks || 0 }}</div>
                 </div>
                 <div class="col-auto">
-                  <div class="text-caption">销量</div>
+                  <div class="text-caption">{{ t('product.detail.sales') }}</div>
                   <div class="text-subtitle1">{{ productInfo?.soldNum || 0 }}</div>
                 </div>
               </div>
@@ -265,7 +239,7 @@
 
             <!-- 配送方式 -->
             <div class="delivery-info q-mt-lg">
-              <div class="text-subtitle2 q-mb-sm">配送方式</div>
+              <div class="text-subtitle2 q-mb-sm">{{ t('product.detail.delivery.title') }}</div>
               <div class="row q-gutter-sm">
                 <q-chip
                   v-if="deliveryMode?.hasShopDelivery"
@@ -273,7 +247,7 @@
                   color="primary"
                   text-color="white"
                 >
-                  商家配送
+                  {{ t('product.detail.delivery.merchant') }}
                 </q-chip>
                 <q-chip
                   v-if="deliveryMode?.hasUserPickUp"
@@ -281,7 +255,7 @@
                   color="teal"
                   text-color="white"
                 >
-                  用户自提
+                  {{ t('product.detail.delivery.pickup') }}
                 </q-chip>
               </div>
             </div>
@@ -294,10 +268,10 @@
                   <q-input
                     v-model.number="quantity"
                     type="number"
-                    label="购买数量"
+                    :label="t('product.detail.quantity')"
                     :rules="[
-                      val => val > 0 || '数量必须大于0',
-                      val => val <= getMaxStock() || '超出库存数量'
+                      val => val > 0 || t('product.detail.quantityMin'),
+                      val => val <= getMaxStock() || t('product.detail.quantityMax')
                     ]"
                     outlined
                     dense
@@ -323,45 +297,56 @@
                   </q-input>
                 </div>
 
-                <!-- 购买按钮 -->
-                <div class="col-12">
-                  <div class="row q-col-gutter-md">
-                    <!-- 根据商品类型显示不同按钮 -->
-                    <template v-if="productInfo?.prodType === ProductType.GROUP">
-                      <div class="col">
-                        <q-btn
-                          color="green"
-                          class="full-width"
-                          :label="`￥${getCurrentPrice} 立即开团`"
-                          :disable="!canBuy"
-                          @click="handleBuyNow"
-                        />
-                      </div>
-                    </template>
-                    <template v-else>
-                      <!-- 原有的购买按钮 -->
-                      <div class="col">
-                        <q-btn
-                          color="primary"
-                          class="full-width"
-                          :label="productInfo?.presellStatus ? '立即预订' : '立即购买'"
-                          :disable="!canBuy"
-                          @click="handleBuyNow"
-                        />
-                      </div>
-                    </template>
+                <!-- 收藏按钮 -->
+                <div class="col-auto">
+                  <q-btn
+                    :color="isCollected ? 'red' : 'grey'"
+                    :icon="isCollected ? 'favorite' : 'favorite_border'"
+                    round
+                    flat
+                    @click="toggleCollection"
+                  >
+                    <q-tooltip>
+                      {{ isCollected ? t('product.detail.favorite.remove') : t('product.detail.favorite.add') }}
+                    </q-tooltip>
+                  </q-btn>
+                </div>
 
-                    <!-- 加入购物车按钮 -->
-                    <div class="col">
-                      <q-btn
-                        color="orange"
-                        class="full-width"
-                        label="加入购物车"
-                        :disable="!canBuy"
-                        @click="handleAddToCart"
-                      />
-                    </div>
+                <!-- 团购按钮 -->
+                <template v-if="productInfo?.prodType === ProductType.GROUP">
+                  <div class="col">
+                    <q-btn
+                      color="green"
+                      class="full-width"
+                      :label="t('product.group.startGroup', { price: getCurrentPrice })"
+                      :disable="!canBuy"
+                      @click="handleBuyNow"
+                    />
                   </div>
+                </template>
+
+                <!-- 预售/普通购买按钮 -->
+                <template v-else>
+                  <div class="col">
+                    <q-btn
+                      color="primary"
+                      class="full-width"
+                      :label="productInfo?.presellStatus ? t('product.preOrder') : t('product.buyNow')"
+                      :disable="!canBuy"
+                      @click="handleBuyNow"
+                    />
+                  </div>
+                </template>
+
+                <!-- 加入购物车按钮 -->
+                <div class="col">
+                  <q-btn
+                    color="orange"
+                    class="full-width"
+                    :label="t('product.detail.addToCart')"
+                    :disable="!canBuy"
+                    @click="handleAddToCart"
+                  />
                 </div>
               </div>
             </div>
@@ -398,11 +383,11 @@
               <q-list separator>
                 <q-item v-for="(prop, index) in productInfo?.propList" :key="index">
                   <q-item-section>
-                    <q-item-label class="param-name">{{ prop.propName }}</q-item-label>
+                    <q-item-label class="param-name">{{getCurrentLanguageName(prop.translations,prop.propName )}}</q-item-label>
                   </q-item-section>
                   <q-item-section>
                     <q-item-label class="param-values">
-                      {{ prop.values.map((v: { propValue: string }) => v.propValue).join('、') }}
+                      {{ prop.values.map((v: { propValue: string,translations:Translations }) => getCurrentLanguageName(v.translations,v.propValue )).join('、') }}
                     </q-item-label>
                   </q-item-section>
                 </q-item>
@@ -414,8 +399,8 @@
     </div>
 
     <div class="product-detail-content q-mt-md">
-      <product-comments
-          :product-id="String(route.params.id)"
+      <ProductComments
+          :prod-id="prodId"
           @update:comments="updateComments"
       />
     </div>
@@ -423,7 +408,7 @@
     <q-dialog v-model="previewDialog">
       <q-card style="width: 80vw; max-width: 800px">
         <q-card-section class="row items-center">
-          <div class="text-h6">图片预览</div>
+          <div class="text-h6">{{ t('product.detail.imagePreview') }}</div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
@@ -438,11 +423,17 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useHead } from '#imports'
 import { useRoute } from 'vue-router'
 import { useQuasar } from 'quasar'
-import type {ProductDetail, Sku, Product} from '~/types/product'
+import { ProductType } from '~/utils/constants'
+import type {ProductDetail, Sku} from '~/types/product'
 import ProductComments from '~/components/product/ProductComments.vue'
-
+import {formatDateTime, getCurrentLanguageName, getImageUrl, getLanguageName} from "~/utils/tools";
+import {useI18n} from "vue-i18n";
+import { shanghaiToLocal } from '~/utils/format'
+const { locale, t } = useI18n()
+const lang = locale.value;
 const route = useRoute()
 const prodId = ref(route.query.prodId)
 const $q = useQuasar()
@@ -457,12 +448,7 @@ const currentSku = ref<Sku | null>(null)
 
 // 添加当前显示图片
 const currentImage = ref('')
-enum ProductType {
-  NORMAL = 1,    // 一般商品
-  PRESELL = 2,   // 预售商品
-  GROUP = 3,     // 团购商品
-  SECKILL = 4    // 秒杀商品
-}
+
 // 计算宣传图片列表
 const imgList = computed(() => {
   if (!productInfo.value?.imgs) return []
@@ -480,7 +466,7 @@ const deliveryMode = computed(() => {
 })
 
 function isProdProp(value1:string,value2:string){
-  //console.log("判断是否等于",value1,value2,(value1 === value2));
+  //console.log("判断是否等",value1,value2,(value1 === value2));
   if(value1 === value2){
     return true;
   }
@@ -493,11 +479,14 @@ const updateComments = (comments: any) => {
 }
 // 加载商品数据
 async function loadProductData() {
-  //console.log('=== 开始加载商品数据 ===')
   try {
-    const response = await api.get(`/api/prod/detail?id=${prodId.value}`)
+    // const response = await fetch(`/prod/detail/${prodId.value}&lang=${lang}`, {
+    //       headers: {
+    //         'Accept-Language': lang // 添加语言请求头
+    //       }
+    //     })
+    const response = await api.get(`/sys/prod/detail/${prodId.value}`)
     const result = await response.data
-    //console.log('商品数据加载成功 1:',result);
     if (result.code === 200) {
       productInfo.value = result.data;
     }
@@ -505,10 +494,9 @@ async function loadProductData() {
     console.error('加载商品数据失败:', error)
     $q.notify({
       type: 'negative',
-      message: '加载商品数据失败'
+      message: '加载商品数失败'
     })
   }
-  //console.log('=== 商品数据加载完成 ===')
 }
 
 // 判断规格值是否已选中
@@ -518,16 +506,11 @@ function isSelected(propId: string | number, valueId: string | number): boolean 
 
 // 修改检查 SKU 值是否可选的函数
 const isSkuValueAvailable = (propId: string | number, valueId: string | number): boolean => {
-  //console.log('=== 检查SKU值是否可选 ===')
-  //console.log('检查参数:', { propId, valueId })
-
   try {
     // 获取当前规格和属性值
     const prop = productInfo.value?.propList.find(p => p.propId === propId)
     const value = prop?.values.find(v => v.valueId === valueId)
-
     if (!prop || !value) {
-      //console.log('未找到对应的规格或属性值')
       return false
     }
 
@@ -539,9 +522,6 @@ const isSkuValueAvailable = (propId: string | number, valueId: string | number):
       delete newSelected[propId]
     }
     newSelected[propId] = valueId
-
-    //console.log('新的选择状态:', newSelected)
-
     // 检查是否有匹配的 SKU 且有库存
     const matchingSku = productInfo.value?.skuList.find(sku => {
       // 解析 SKU 的属性
@@ -581,7 +561,9 @@ function selectSkuValue(propId: string | number, valueId: string | number) {
     if (!isSkuValueAvailable(propId, valueId)) {
       return
     }
+
     const newSkuValues = { ...selectedSkuValues.value }
+
     if (newSkuValues[propId] === valueId) {
       // 取消选择
       delete newSkuValues[propId]
@@ -600,7 +582,6 @@ function selectSkuValue(propId: string | number, valueId: string | number) {
     if (matchingSku) {
       currentSku.value = matchingSku
       currentImage.value = getImageUrl(matchingSku.pic || productInfo.value?.pic)
-      //console.log('找到匹配的SKU:', matchingSku)
     } else {
       currentSku.value = null
       currentImage.value = getImageUrl(productInfo.value?.pic)
@@ -613,6 +594,9 @@ function selectSkuValue(propId: string | number, valueId: string | number) {
 
 // 修改查找匹配 SKU 的辅助函数
 function findMatchingSku(selectedValues: Record<string, string | number>) {
+  //console.log('=== 查找匹配SKU ===')
+  //console.log('选中的规格值:', selectedValues)
+
   try {
     const selectedProps = Object.entries(selectedValues).map(([propId, valueId]) => {
       const prop = productInfo.value.propList.find(p => p.propId === propId)
@@ -631,6 +615,7 @@ function findMatchingSku(selectedValues: Record<string, string | number>) {
       return isMatch
     })
 
+    //console.log('找到匹配的SKU:', matchingSku)
     return matchingSku
   } catch (error) {
     console.error('查找匹配SKU失败:', error)
@@ -644,13 +629,9 @@ function previewImage(url: string) {
   previewDialog.value = true
 }
 
-// 格式化日期时间
-function formatDateTime(datetime: string) {
-  if (!datetime) return ''
-  return new Date(datetime).toLocaleString()
-}
 
-// 计算是否已选择完所有SKU
+
+// ��算是否已选择完所有SKU
 const isSkuSelected = computed(() => {
   if (!productInfo.value?.propList?.length) return true
   return productInfo.value.propList.every(prop =>
@@ -698,24 +679,76 @@ async function handleBuyNow() {
   }
 
   try {
-    // 构建订单数据
-    const orderData = {
-      prodId: productInfo.value.prodId,
-      shopId: productInfo.value.shopId,
-      quantity: quantity.value,
-      // SKU 相关信息
-      skuId: hasSku.value ? currentSku.value.skuId : null,
-      price: getCurrentPrice.value,
-      // 预售相关信息
-      presellStatus: productInfo.value.presellStatus,
-      presellPrice: hasSku.value ? currentSku.value.presellPrice : productInfo.value.presellPrice,
-      presellDeposit: hasSku.value ? currentSku.value.presellDeposit : productInfo.value.presellDeposit,
-      from:"direct"
+    console.log("----------handleBuyNow---------------")
+    const cartData =ref([]);
+    if (hasSku.value && currentSku.value) {
+      console.log("----------handleBuyNow-----1----------")
+      // 购买 SKU 商品
+      const  orderData = {
+        prodId: currentSku.value.prodId,
+        skuId: currentSku.value.skuId,
+        prodName: getLanguageName(productInfo.value.translations,productInfo.value?.prodName,lang), // 使用商品名称
+        skuName: getLanguageName(currentSku.value?.translations,currentSku.value?.skuName,lang),
+        deliveryTemplateId:productInfo.value.deliveryTemplateId,
+        price: currentSku.value.price,
+        oriPrice: currentSku.value.oriPrice,
+        pic: currentSku.value.pic || productInfo.value.pic,
+        quantity: quantity.value,
+        basketCount: quantity.value,
+        prodType: productInfo.value.prodType, // 使用商品类型
+        // 预售相关信息
+        presellStatus: currentSku.value.presellStatus,
+        presellPrice: currentSku.value.presellPrice,
+        presellDeposit: currentSku.value.presellDeposit,
+        // 团购相关信息
+        groupPrice: currentSku.value.groupPrice,
+        groupMinNum: currentSku.value.groupMinNum,
+        // 秒杀相关信息
+        seckillPrice: currentSku.value.seckillPrice,
+        isVirtual: productInfo.value.isVirtual,
+        isSkuItem: 1,
+        weight: currentSku.value?.weight,
+        volume: currentSku.value?.volume,
+        translations: productInfo.value.translations,
+        from: "direct"
+      }
+      cartData.value.push(orderData);
+      setCache("cartStore", cartData.value)
+      window.location.href = `/checkout?prodId=${currentSku.value.prodId}&skuId=${currentSku.value.skuId}`
+    } else {
+      console.log("----------handleBuyNow------2---------")
+      // 购买普通商品
+      const  orderData = {
+        prodId: productInfo.value.prodId,
+        prodName: productInfo.value.prodName,
+        price: productInfo.value.price,
+        oriPrice: productInfo.value.oriPrice,
+        pic: productInfo.value.pic,
+        quantity: quantity.value,
+        basketCount: quantity.value,
+        prodType: productInfo.value.prodType,
+        deliveryTemplateId:productInfo.value.deliveryTemplateId,
+        // 预售相关信息
+        presellStatus: productInfo.value.presellStatus,
+        presellPrice: productInfo.value.presellPrice,
+        presellDeposit: productInfo.value.presellDeposit,
+        // 团购相关信息
+        groupPrice: productInfo.value.groupPrice,
+        groupMinNum: productInfo.value.groupMinNum,
+        // 秒杀相关信息
+        seckillPrice: productInfo.value.seckillPrice,
+        isVirtual: productInfo.value.isVirtual ,
+        isSkuItem: 0,
+        weight: productInfo.value?.weight,
+        volume: productInfo.value?.volume,
+        translations: productInfo.value.translations,
+        from: "direct"
+      }
+      cartData.value.push(orderData);
+      setCache("cartStore", cartData.value)
+      window.location.href = `/checkout?prodId=${productInfo.value.prodId}&prodName=${productInfo.value.prodName}&`
     }
 
-    // 跳转到结算页面
-    const queryParams = new URLSearchParams(orderData as any).toString()
-    window.location.href = `/checkout?${queryParams}`
   } catch (error) {
     console.error('购买失败:', error)
     $q.notify({
@@ -736,7 +769,7 @@ async function handleAddToCart() {
   }
 
   try {
-    const response = await api.post('/admin/basket/add', {
+    const response = await api.post('/sys/basket/add', {
       "prodId":productInfo.value!.prodId,
       "count":quantity.value,
       "skuId":hasSku.value ? currentSku.value!.skuId : undefined,
@@ -778,19 +811,6 @@ function updateQuantity(delta: number) {
   }
 }
 
-// 获取当前选中的SKU
-function getCurrentSku() {
-  if (!isSkuSelected.value) return null
-
-  const selectedProps = Object.entries(selectedSkuValues.value)
-    .map(([propId, valueId]) => `${propId}:${valueId}`)
-    .join(';')
-
-  return productInfo.value?.skuList.find((sku: any) =>
-    sku.properties === selectedProps
-  )
-}
-
 // 监听SKU选择变化
 watch(selectedSkuValues, (newValues) => {
   try {
@@ -804,8 +824,10 @@ watch(selectedSkuValues, (newValues) => {
       currentSku.value = null
       currentImage.value = getImageUrl(productInfo.value?.pic)
     }
+
     // 重置数量
     quantity.value = 1
+
   } catch (error) {
     console.error('处理SKU值变化失败:', error)
   }
@@ -820,11 +842,13 @@ watch(currentSku, (newSku) => {
   }
 })
 
+
 // 修改 SKU 图片点击处理函数
 const handleSkuImageClick = (sku: any) => {
   try {
     // 设置当前显示图片
     currentImage.value = getImageUrl(sku.pic || productInfo.value?.pic)
+    //console.log('设置当前显示图片:', currentImage.value)
 
     // 解析 SKU 的规格属性
     const properties = sku.properties.split(';')
@@ -857,10 +881,10 @@ const handleSkuImageClick = (sku: any) => {
 
     // 更新当前 SKU
     currentSku.value = sku
+
   } catch (error) {
     console.error('处理SKU图片点击失败:', error)
   }
-  //console.log('=== SKU图片点击处理完成 ===')
 }
 
 // 计算团购进度
@@ -878,12 +902,156 @@ const groupProgress = computed(() => {
   return Math.min(joinedNum / minNum, 1)
 })
 
-onMounted(() => {
-  loadProductData()
+// 收藏状态
+const isCollected = ref(false)
+
+// 检查商品是否已收藏
+const checkCollectionStatus = async () => {
+  try {
+    const response = await api.get(`/prod/favorite/check/${prodId.value}`)
+    const { code, data } = await response.data
+    if (code === 200) {
+      isCollected.value = data
+    }
+  } catch (error) {
+    console.error('检查收藏状态失败:', error)
+  }
+}
+
+// 切换收藏状态
+const toggleCollection = async () => {
+  try {
+    const url = isCollected.value
+      ? `/prod/favorite/del/${prodId.value}`
+      : `/prod/favorite/add/${prodId.value}`
+    const response = await api.get(url)
+    const { code, msg } = await response.data
+    if (code === 200) {
+      isCollected.value = !isCollected.value
+      $q.notify({
+        type: 'positive',
+        message: isCollected.value ? '收藏成功' : '已取消收藏'
+      })
+    } else {
+      Notify.create({
+        type: 'negative',
+        message: msg
+      })
+    }
+  } catch (error) {
+    console.error('操作收藏失败:', error)
+    $q.notify({
+      type: 'negative',
+      message: isCollected.value ? '取消收藏失败' : '收藏失败'
+    })
+  }
+}
+
+// 在初始化时检查收藏状态
+onMounted(async () => {
+  await loadProductData()
+  await checkCollectionStatus()
 })
+
+
+// 计算 Meta 标签内容
+const metaTitle = computed(() => {
+  return `${productInfo.value?.prodName} - ${t('common.title')}`
+})
+
+const metaDescription = computed(() => {
+  return productInfo.value?.translations || `${productInfo.value?.prodName} - ${t('product.detail.defaultDescription')}`
+})
+
+const metaKeywords = computed(() => {
+  const keywords = [
+    productInfo.value?.prodName,
+    productInfo.value?.translations
+  ].filter(Boolean)
+  return keywords.join(', ')
+})
+
+// 生成结构化数据
+const structuredData = computed(() => {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: productInfo.value?.prodName,
+    description: productInfo.value?.brief,
+    image: productInfo.value?.pic,
+    brand: {
+      '@type': 'Brand',
+      name: productInfo.value?.brand
+    },
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'CNY',
+      price: productInfo.value?.price,
+      availability: productInfo.value?.skuList.some(item => item.stocks > 0)
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/OutOfStock'
+    }
+  }
+})
+
+// 设置页面 Meta 信息
+useHead({
+  title: metaTitle,
+  meta: [
+    { name: 'description', content: metaDescription },
+    { name: 'keywords', content: metaKeywords },
+    // Open Graph tags
+    { property: 'og:title', content: metaTitle },
+    { property: 'og:description', content: metaDescription },
+    { property: 'og:image', content: productInfo.value?.pic },
+    { property: 'og:type', content: 'product' },
+    { property: 'og:price:amount', content: String(productInfo.value?.price) },
+    { property: 'og:price:currency', content: 'CNY' },
+    // Twitter Card tags
+    { name: 'twitter:card', content: 'product' },
+    { name: 'twitter:title', content: metaTitle },
+    { name: 'twitter:description', content: metaDescription },
+    { name: 'twitter:image', content: productInfo.value?.pic }
+  ],
+  link: [
+    // 添加规范链接
+    { rel: 'canonical', href: `${process.env.SITE_URL}/product/detail/${route.params.id}` }
+  ],
+  script: [
+    // 添加结构化数据
+    {
+      type: 'application/ld+json',
+      children: JSON.stringify(structuredData.value)
+    }
+  ]
+})
+
+// 加载商品详情
+// const loadProductDetail = async () => {
+//   try {
+//     const response = await api.get(`/product/detail/${route.params.id}`)
+//     if (response.data.code === 200) {
+//       product.value = response.data.data
+//     }
+//   } catch (error) {
+//     console.error('加载商品详情失败:', error)
+//   }
+// }
+//
+// onMounted(() => {
+//   loadProductDetail()
+// })
 </script>
 
 <style lang="scss" scoped>
+.product-detail p {
+  margin: 0px !important;
+  padding: 0px !important;
+  border: 0px !important;
+  vertical-align: middle !important;
+}
+
+
 .product-detail {
   .main-image {
     max-height: 400px;
@@ -939,6 +1107,12 @@ onMounted(() => {
     :deep(img) {
       max-width: 100%;
       height: auto;
+    }
+    p {
+      margin: 0px;
+      padding: 0px;
+      border: 0px;
+      vertical-align: middle;
     }
   }
 
@@ -1062,6 +1236,15 @@ onMounted(() => {
     .q-btn {
       height: 44px;
       font-size: 16px;
+
+      // 收藏按钮样式
+      &[round] {
+        width: 44px;
+
+        &:hover {
+          background: rgba(0, 0, 0, 0.05);
+        }
+      }
     }
   }
 
@@ -1082,4 +1265,5 @@ onMounted(() => {
     }
   }
 }
+
 </style>

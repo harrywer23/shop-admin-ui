@@ -197,7 +197,7 @@ const statusOptions = [
 // 加载分类
 const loadCategories = async () => {
   try {
-    const response = await api.get('/admin/forum/category/list')
+    const response = await api.get('/sys/forum/category/list')
     if (response.data.code === 200) {
       categoryOptions.value = response.data.data.map((item: any) => ({
         label: item.name,
@@ -216,7 +216,7 @@ const loadCategories = async () => {
 // 加载主题详情
 const loadPost = async (id: string) => {
   try {
-    const response = await api.get(`/admin/forum/post/${id}`)
+    const response = await api.get(`/sys/forum/post/${id}`)
     if (response.data.code === 200) {
       formData.value = response.data.data
     }
@@ -232,7 +232,7 @@ const loadPost = async (id: string) => {
 // 提交表单
 const handleSubmit = async () => {
   try {
-    const response = await api.post('/admin/forum/post/update', formData.value)
+    const response = await api.post('/sys/forum/post/update', formData.value)
     if (response.data.code === 200) {
       $q.notify({
         type: 'positive',
@@ -254,7 +254,7 @@ const handleSubmit = async () => {
 // 处理置顶
 const handleTop = async () => {
   try {
-    const response = await api.post('/admin/forum/post/top', {
+    const response = await api.post('/sys/forum/post/top', {
       id: formData.value.id,
       isTop: !formData.value.isTop
     })
@@ -280,7 +280,7 @@ const handleTop = async () => {
 // 处理加精
 const handleHighlight = async () => {
   try {
-    const response = await api.post('/admin/forum/post/highlight', {
+    const response = await api.post('/sys/forum/post/highlight', {
       id: formData.value.id,
       isHighlight: !formData.value.isHighlight
     })
@@ -313,7 +313,7 @@ const handleOffline = async () => {
       persistent: true
     })
 
-    const response = await api.post('/admin/forum/post/offline', {
+    const response = await api.post('/sys/forum/post/offline', {
       id: formData.value.id,
       status: 3  // 3表示已下架状态
     })
@@ -400,4 +400,4 @@ onMounted(async () => {
     background: #ffebee;
   }
 }
-</style> 
+</style>

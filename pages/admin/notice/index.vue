@@ -6,7 +6,7 @@
         color="primary"
         icon="add"
         label="新增公告"
-        @click="$router.push('/admin/notice/edit')"
+        @click="$router.push('/sys/notice/edit')"
       />
     </div>
 
@@ -25,7 +25,7 @@
       <!-- 添加标题列的自定义插槽 -->
       <template v-slot:body-cell-title="props">
         <q-td :props="props" :data-content="props.value">
-          <div class="ellipsis cursor-pointer" @click="$router.push(`/admin/notice/detail?id=${props.row.id}`)">
+          <div class="ellipsis cursor-pointer" @click="$router.push(`/sys/notice/detail?id=${props.row.id}`)">
             {{ props.value }}
           </div>
         </q-td>
@@ -73,7 +73,7 @@
               round
               color="primary"
               icon="edit"
-              @click="$router.push(`/admin/notice/edit?id=${props.row.id}`)"
+              @click="$router.push(`/sys/notice/edit?id=${props.row.id}`)"
             >
               <q-tooltip>编辑</q-tooltip>
             </q-btn>
@@ -147,59 +147,59 @@ interface Notice {
 
 // 表格列定义
 const columns = [
-  { 
-    name: 'id', 
-    label: 'ID', 
-    field: 'id', 
+  {
+    name: 'id',
+    label: 'ID',
+    field: 'id',
     sortable: true,
     align: 'left' as const
   },
-  { 
-    name: 'title', 
-    label: '标题', 
-    field: 'title', 
+  {
+    name: 'title',
+    label: '标题',
+    field: 'title',
     sortable: true,
     align: 'left' as const,
     style: 'max-width: 200px'
   },
-  { 
-    name: 'content', 
-    label: '内容', 
+  {
+    name: 'content',
+    label: '内容',
     field: 'content',
     align: 'left' as const,
     style: 'max-width: 300px'
   },
-  { 
-    name: 'status', 
-    label: '状态', 
+  {
+    name: 'status',
+    label: '状态',
     field: 'status',
     align: 'center' as const
   },
-  { 
-    name: 'isTop', 
-    label: '置顶', 
+  {
+    name: 'isTop',
+    label: '置顶',
     field: 'isTop',
     align: 'center' as const
   },
-  { 
-    name: 'publishTime', 
-    label: '发布时间', 
-    field: 'publishTime', 
+  {
+    name: 'publishTime',
+    label: '发布时间',
+    field: 'publishTime',
     sortable: true,
     align: 'left' as const,
     format: (val: string) => val ? date.formatDate(val, 'YYYY-MM-DD HH:mm:ss') : '-'
   },
-  { 
-    name: 'updateTime', 
-    label: '更新时间', 
-    field: 'updateTime', 
+  {
+    name: 'updateTime',
+    label: '更新时间',
+    field: 'updateTime',
     sortable: true,
     align: 'left' as const,
     format: (val: string) => val ? date.formatDate(val, 'YYYY-MM-DD HH:mm:ss') : '-'
   },
-  { 
-    name: 'actions', 
-    label: '操作', 
+  {
+    name: 'actions',
+    label: '操作',
     field: 'actions',
     align: 'center' as const
   }
@@ -227,7 +227,7 @@ const loadNotices = async () => {
       order: pagination.value.descending ? 'desc' : 'asc'
     }
 
-    const response = await api.get('/admin/notice/list', { params })
+    const response = await api.get('/sys/notice/list', { params })
     const { code, data, total } = response.data
 
     if (code === 200) {
@@ -262,7 +262,7 @@ const onRequest = async (props: any) => {
 // 切换状态
 const toggleStatus = async (notice: Notice) => {
   try {
-    const response = await api.post('/admin/notice/status', {
+    const response = await api.post('/sys/notice/status', {
       id: notice.id,
       status: !notice.status
     })
@@ -289,7 +289,7 @@ const toggleStatus = async (notice: Notice) => {
 // 切换置顶
 const toggleTop = async (notice: Notice) => {
   try {
-    const response = await api.post('/admin/notice/top', {
+    const response = await api.post('/sys/notice/top', {
       id: notice.id,
       isTop: !notice.isTop
     })
@@ -322,7 +322,7 @@ const confirmDelete = (notice: Notice) => {
     persistent: true
   }).onOk(async () => {
     try {
-      const response = await api.delete(`/admin/notice/${notice.id}`)
+      const response = await api.delete(`/sys/notice/${notice.id}`)
 
       const { code, msg } = response.data
       if (code === 200) {
@@ -391,7 +391,7 @@ const getContentPreview = (content: string) => {
   .notices-table {
     background: white;
     border-radius: 8px;
-    
+
     .q-table__card {
       box-shadow: none;
     }
@@ -418,14 +418,14 @@ const getContentPreview = (content: string) => {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        
+
         .ellipsis {
           &:hover {
             color: #1976d2;
             text-decoration: underline;
           }
         }
-        
+
         &:hover {
           position: relative;
           overflow: visible;
@@ -453,7 +453,7 @@ const getContentPreview = (content: string) => {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        
+
         &:hover {
           position: relative;
           overflow: visible;
@@ -492,7 +492,7 @@ const getContentPreview = (content: string) => {
     .q-btn {
       padding: 4px 8px;
       margin: 0 2px;
-      
+
       &:hover {
         background: rgba(0, 0, 0, 0.05);
       }

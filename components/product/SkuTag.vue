@@ -26,12 +26,38 @@
           v-for="(value, valueIndex) in prop.values"
           :key="valueIndex"
           removable
-          @remove="removeValue(index, valueIndex)"
+          @remove.stop="removeValue(index, valueIndex)"
           color="primary"
           text-color="white"
+          class="value-chip"
         >
-          {{ value.propValue }}
+          <div class="row items-center no-wrap">
+            <span class="q-mr-sm">{{ value.propValue }}</span>
+            <q-btn
+              flat
+              round
+              dense
+              color="white"
+              icon="edit"
+              size="xs"
+              @click.stop="editValue(index, valueIndex)"
+            >
+              <q-tooltip>编辑属性值</q-tooltip>
+            </q-btn>
+          </div>
         </q-chip>
+        
+        <!-- 添加属性值按钮 -->
+        <q-btn
+          flat
+          round
+          size="sm"
+          color="primary"
+          icon="add"
+          @click="showAddValueDialog(index)"
+        >
+          <q-tooltip>添加属性值</q-tooltip>
+        </q-btn>
       </div>
     </div>
 
@@ -99,6 +125,36 @@
             color="primary"
             @click="confirmAddProp"
             :disable="!selectedProp || !selectedValues.length"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- 添加属性值对话框 -->
+    <q-dialog v-model="showValueDialog" persistent>
+      <q-card style="min-width: 300px">
+        <q-card-section>
+          <div class="text-h6">{{ isEditingValue ? '编辑属性值' : '添加属性值' }}</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-input
+            v-model="newValueInput"
+            label="属性值"
+            outlined
+            dense
+            :rules="[val => !!val || '请输入属性值']"
+            @keyup.enter="confirmValue"
+          />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="取消" color="primary" v-close-popup />
+          <q-btn
+            label="确定"
+            color="primary"
+            @click="confirmValue"
+            :disable="!newValueInput"
           />
         </q-card-actions>
       </q-card>
@@ -285,28 +341,19 @@ const removeValue = (propIndex: number, valueIndex: number) => {
 
 // 修改生成SKU组合方法
 const generateSkuCombinations = (properties: Record<string, any>) => {
-
   const propIds = Object.keys(properties)
   if (propIds.length === 0) {
-    //console.log('没有规格属性，返回空数组')
     return []
   }
 
   const combinations: any[] = []
-  const values = propIds.map(propId => {
-    //console.log(`获取属性 ${propId} 的值列表:`, properties[propId])
-    return properties[propId].values
-  })
-
-  //console.log('所有规格值列表:', values)
+  const values = propIds.map(propId => properties[propId].values)
 
   const combine = (current: any[], index: number) => {
     if (index === propIds.length) {
-      // 生成属性字符串时直接使用属性名和属性值
       const propertiesStr = current.map((value, i) => {
         const propName = properties[propIds[i]].propName
         const propValue = value.propValue
-        //console.log(`生成属性组合: ${propName}:${propValue}`)
         return `${propName}:${propValue}`
       }).join(';')
 
@@ -317,22 +364,22 @@ const generateSkuCombinations = (properties: Record<string, any>) => {
         price: 0,
         stocks: 0,
         pic: '',
-        sku_id: Date.now() + Math.floor(Math.random() * 1000),
+        skuId: Date.now() + Math.floor(Math.random() * 1000),  // 使用时间戳+随机数作为临时ID
+        tempId: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,  // 添加临时ID
         skuCode: `SKU${Date.now()}${Math.floor(Math.random() * 1000)}`,
+        status: 1
       }
       combinations.push(sku)
       return
     }
 
     for (const value of values[index]) {
-      //console.log(`处理第 ${index} 个属性的值:`, value)
       current[index] = value
       combine([...current], index + 1)
     }
   }
 
   combine([], 0)
-  //console.log('生成的所有SKU组合:', combinations)
   return combinations
 }
 
@@ -372,6 +419,108 @@ watch(() => props.modelValue, (newValue) => {
     propList.value.push(value)
   }
 }, { immediate: true })
+
+// 添加新的响应式变量
+const showValueDialog = ref(false)
+const newValueInput = ref('')
+const currentPropIndex = ref(-1)
+const currentValueIndex = ref(-1)
+const isEditingValue = ref(false)
+
+// 显示添加属性值对话框
+function showAddValueDialog(propIndex: number) {
+  currentPropIndex.value = propIndex
+  isEditingValue.value = false
+  newValueInput.value = ''
+  showValueDialog.value = true
+}
+
+// 编辑属性值
+function editValue(propIndex: number, valueIndex: number) {
+  console.log('编辑属性值:', { propIndex, valueIndex })
+  
+  // 添加防御性检查
+  if (propIndex < 0 || valueIndex < 0 || !propList.value[propIndex]) {
+    console.error('无效的属性索引:', { propIndex, valueIndex })
+    return
+  }
+
+  currentPropIndex.value = propIndex
+  currentValueIndex.value = valueIndex
+  isEditingValue.value = true
+
+  const propValue = propList.value[propIndex]?.values[valueIndex]?.propValue
+  if (propValue) {
+    newValueInput.value = propValue
+    showValueDialog.value = true
+    console.log('打开编辑对话框:', { propValue, newValueInput: newValueInput.value })
+  } else {
+    console.error('无法获取属性值:', { 
+      propIndex, 
+      valueIndex, 
+      prop: propList.value[propIndex],
+      values: propList.value[propIndex]?.values 
+    })
+  }
+}
+
+// 确认添加/编辑属性值
+function confirmValue() {
+  if (!newValueInput.value) return
+
+  const prop = propList.value[currentPropIndex.value]
+  if (!prop) return
+
+  try {
+    if (isEditingValue.value) {
+      // 编辑现有属性值
+      if (prop.values[currentValueIndex.value]) {
+        prop.values[currentValueIndex.value].propValue = newValueInput.value
+        // 立即更新数据
+        updateModelValue()
+        showValueDialog.value = false
+        newValueInput.value = ''
+        
+        $q.notify({
+          type: 'positive',
+          message: '属性值已更新'
+        })
+      }
+    } else {
+      // 检查属性值是否重复
+      const isDuplicate = prop.values.some((v, index) => 
+        v.propValue === newValueInput.value && 
+        (!isEditingValue.value || index !== currentValueIndex.value)
+      )
+
+      if (isDuplicate) {
+        $q.notify({
+          type: 'warning',
+          message: '属性值不能重复'
+        })
+        return
+      }
+
+      // 添加新属性值
+      prop.values.push({
+        valueId: Date.now() + Math.floor(Math.random() * 1000),
+        propValue: newValueInput.value
+      })
+    }
+  } catch (error) {
+    console.error('更新属性值失败:', error)
+    $q.notify({
+      type: 'negative',
+      message: '更新属性值失败'
+    })
+  }
+}
+
+// 添加处理点击事件的函数
+function handleChipClick(propIndex: number, valueIndex: number) {
+  console.log('Chip clicked:', { propIndex, valueIndex })
+  editValue(propIndex, valueIndex)
+}
 </script>
 
 <style lang="scss" scoped>
@@ -408,6 +557,31 @@ watch(() => props.modelValue, (newValue) => {
 
   .q-btn.q-mb-lg {
     margin-top: 16px;
+  }
+
+  .value-chip {
+    transition: all 0.3s ease;
+    padding-right: 8px; // 为编辑按钮留出空间
+
+    .q-btn {
+      margin-left: 4px;
+      opacity: 0.8;
+      
+      &:hover {
+        opacity: 1;
+      }
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    // 移除之前的点击相关样式
+    &.q-chip--clickable,
+    .q-chip__content {
+      cursor: default;
+    }
   }
 }
 </style>

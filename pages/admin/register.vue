@@ -165,7 +165,7 @@ function togglePasswordVisibility() {
 
             <!-- 登录链接 -->
             <div class="extra-links">
-              <router-link to="/admin/login" class="login-link">
+              <router-link to="/sys/login" class="login-link">
                 {{ $t('login.login') }}
               </router-link>
             </div>

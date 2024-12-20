@@ -2,7 +2,7 @@
   <div class="detail-edit">
     <q-card class="edit-card">
       <q-card-section class="row items-center q-pb-none">
-        <div class="text-h6">编辑商品详情</div>
+        <div class="text-h6">商品详情编辑</div>
         <q-space />
         <q-btn
           icon="arrow_back"
@@ -14,53 +14,24 @@
         />
       </q-card-section>
 
-      <!-- 商品基本信息展示 -->
-      <q-card-section v-if="productInfo" class="product-info q-pt-none">
-        <div class="row items-center">
-          <q-img
-            :src="getImageUrl(productInfo.pic)"
-            class="product-image"
-            width="80px"
-            height="80px"
-          />
-          <div class="product-details q-ml-md">
-            <div class="text-subtitle1">{{ productInfo.prodName }}</div>
-            <div class="text-caption text-grey">编码: {{ productInfo.prodCode }}</div>
-          </div>
-        </div>
-      </q-card-section>
-
-      <!-- 富文本编辑器 -->
       <q-card-section>
+        <!-- 商品名称显示 -->
+        <div class="product-name q-mb-md">
+          <div class="text-subtitle2 q-mb-sm">商品名称</div>
+          <div class="text-h6">{{ prodName }}</div>
+        </div>
+
+        <!-- TinyMCE 编辑器 -->
         <div class="editor-container">
-          <Editor
-            ref="editorRef"
+          <tiny-mce
             v-model="content"
-            api-key="z0s2wjpp6mrvdagfhnkghbi1bcsszmg52v1p3lvh69ljlygc"
-            :init="{
-              height: 500,
-              menubar: true,
-              plugins: [
-                'advlist autolink lists link image charmap print preview anchor',
-                'searchreplace visualblocks code fullscreen',
-                'insertdatetime media table paste code help wordcount'
-              ],
-              toolbar:
-                'undo redo | formatselect | bold italic backcolor | \
-                alignleft aligncenter alignright alignjustify | \
-                bullist numlist outdent indent | removeformat | help',
-              language: 'zh_CN',
-              images_upload_url: '/common/uploadImage',
-              images_upload_handler: handleImageUpload
-            }"
-            @onInit="handleEditorInit"
+            :height="600"
+            @change="handleEditorChange"
           />
         </div>
-      </q-card-section>
 
-      <!-- 底部按钮 -->
-      <q-card-section>
-        <div class="row justify-end">
+        <!-- 底部按钮 -->
+        <div class="row justify-end q-mt-lg">
           <q-btn
             flat
             label="取消"
@@ -69,11 +40,10 @@
             @click="router.back()"
           />
           <q-btn
-            unelevated
-            color="primary"
-            :loading="submitting"
             label="保存"
-            @click="handleSubmit"
+            color="primary"
+            :loading="saving"
+            @click="handleSave"
           />
         </div>
       </q-card-section>
@@ -82,124 +52,62 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useQuasar } from 'quasar'
-import Editor from '@tinymce/tinymce-vue'
-import { api } from '~/utils/axios'
+import TinyMce from '~/components/tiny-mce/index.vue'
 
 const router = useRouter()
 const route = useRoute()
 const $q = useQuasar()
 
 const prodId = ref(route.query.prodId)
-const submitting = ref(false)
+const prodName = ref('')
 const content = ref('')
-const productInfo = ref<any>(null)
-const editorRef = ref<any>(null)
-const editorApiKey = 'your-api-key' // 替换为你的 TinyMCE API Key
-const editorInstance = ref<any>(null)
+const saving = ref(false)
 
 // 加载商品数据
-async function loadData() {
-  //console.log('=== 开始加载商品数据 ===')
+async function loadProductData() {
+  if (!prodId.value) return
+
   try {
     const response = await api.get(`/sys/prod/detail/${prodId.value}`)
     const result = await response.data
-    //console.log('商品数据:', result)
 
     if (result.code === 200) {
-      productInfo.value = result.data
-      content.value = result.data.content || ''
-      //console.log('商品详情内容:', content.value)
-
-      // 如果编辑器已经初始化，直接设置内容
-      if (editorInstance.value) {
-        editorInstance.value.setContent(content.value)
-        //console.log('编辑器内容已更新')
-      }
+      prodName.value = result.data.prodName
+      content.value = result.data.detail || ''
     }
   } catch (error) {
-    console.error('加载数据失败:', error)
+    console.error('加载商品数据失败:', error)
     $q.notify({
       type: 'negative',
-      message: '加载数据失败'
+      message: '加载商品数据失败'
     })
   }
-  //console.log('=== 商品数据加载完成 ===')
 }
 
-// 编辑器初始化完成的回调
-function handleEditorInit(evt: any, editor: any) {
-  //console.log('编辑器初始化完成')
-  editorInstance.value = editor
+// 处理编辑器内容变化
+function handleEditorChange(value: string) {
+  content.value = value
+}
 
-  // 初始化完成后设置内容
-  if (content.value) {
-    editor.setContent(content.value)
-    //console.log('初始化时设置编辑器内容:', content.value)
+// 保存商品详情
+async function handleSave() {
+  if (!content.value.trim()) {
+    $q.notify({
+      type: 'warning',
+      message: '请输入商品详情'
+    })
+    return
   }
-}
-
-// 添加 idList 工具函数
-function getIdList(content: string): string[] {
-  //console.log('=== 开始解析内容中的ID ===')
-  const ids: string[] = []
 
   try {
-    // 匹配图片标签中的 src 属性
-    const imgRegex = /<img[^>]*src="([^"]*)"[^>]*>/g
-    let match
-
-    while ((match = imgRegex.exec(content)) !== null) {
-      const src = match[1]
-      //console.log('找到图片:', src)
-
-      // 从图片URL中提取ID
-      const idMatch = src.match(/\/([^\/]+)$/)
-      if (idMatch) {
-        const id = idMatch[1]
-        //console.log('提取到ID:', id)
-        ids.push(id)
-      }
-    }
-
-    //console.log('解析到的所有ID:', ids)
-    return [...new Set(ids)] // 去重
-  } catch (error) {
-    console.error('解析ID失败:', error)
-    return []
-  }
-}
-
-// 修改提交更新方法
-async function handleSubmit() {
-  //console.log('=== 开始提交更新 ===')
-  try {
-    if (!content.value.trim()) {
-      $q.notify({
-        type: 'warning',
-        message: '请输入商品详情内容'
-      })
-      return
-    }
-
-    submitting.value = true
-
-    // 获取内容中的图片ID列表
-    const imageIds = getIdList(content.value)
-    //console.log('内容中的图片ID:', imageIds)
-
-    const submitData = {
+    saving.value = true
+    const response = await api.post('/sys/prod/update/detail', {
       prodId: prodId.value,
-      content: content.value,
-      imageIds // 添加图片ID列表
-    }
-    //console.log('提交数据:', submitData)
-
-    const response = await api.post('/sys/prod/update/content', submitData)
-
-    //console.log('提交响应:', response)
+      detail: content.value
+    })
 
     if (response.data.code === 200) {
       $q.notify({
@@ -217,62 +125,13 @@ async function handleSubmit() {
       message: error instanceof Error ? error.message : '保存失败'
     })
   } finally {
-    submitting.value = false
-    //console.log('=== 更新提交完成 ===')
+    saving.value = false
   }
 }
 
-// 修改图片上传处理方法
-async function handleImageUpload(blobInfo: any, success: Function, failure: Function) {
-  //console.log('=== 开始上传图片 ===')
-  try {
-    const formData = new FormData()
-    formData.append('file', blobInfo.blob())
-    //console.log('上传文件:', blobInfo.blob())
-
-    const response = await api.post('/common/uploadImage', formData)
-
-    const result = await response.data
-    //console.log('上传结果:', result)
-
-    if (result.code === 200) {
-      const imageUrl = result.data.sourceUrl
-      //console.log('上传成功, 图片URL:', imageUrl)
-
-      // 从URL中提取ID
-      const idMatch = imageUrl.match(/\/([^\/]+)$/)
-      if (idMatch) {
-        const imageId = idMatch[1]
-        //console.log('提取到图片ID:', imageId)
-      }
-
-      success(imageUrl)
-    } else {
-      console.error('上传失败:', result.msg)
-      failure('上传失败: ' + result.msg)
-    }
-  } catch (error) {
-    console.error('上传异常:', error)
-    failure('上传失败: ' + (error instanceof Error ? error.message : '未知错误'))
-  }
-  //console.log('=== 图片上传完成 ===')
-}
-
-// 监听内容变化
-watch(content, (newContent) => {
-  //console.log('内容变化:', newContent)
-  if (editorInstance.value) {
-    const currentContent = editorInstance.value.getContent()
-    if (currentContent !== newContent) {
-      editorInstance.value.setContent(newContent)
-    }
-  }
-})
-
+// 在组件挂载时加载数据
 onMounted(() => {
-  if (prodId.value) {
-    loadData()
-  }
+  loadProductData()
 })
 </script>
 
@@ -285,33 +144,29 @@ onMounted(() => {
   .edit-card {
     background: white;
     border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
-  .product-info {
-    border-bottom: 1px solid #f0f0f0;
-    padding: 16px 0;
+  .product-name {
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
 
-    .product-image {
-      border-radius: 4px;
+    .text-subtitle2 {
+      color: #666;
     }
 
-    .product-details {
-      .text-subtitle1 {
-        font-weight: 500;
-      }
+    .text-h6 {
+      color: #333;
     }
   }
 
   .editor-container {
-    border: 1px solid #dcdfe6;
-    border-radius: 4px;
+    margin-top: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
     overflow: hidden;
-    min-height: 500px;
-
-    :deep(.tox-tinymce) {
-      border: none;
-    }
   }
 }
 </style>

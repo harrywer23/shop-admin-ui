@@ -399,7 +399,7 @@ const loadAreas = async () => {
       ...filters.value
     }
 
-    const response = await api.get('/admin/areas/list', { params })
+    const response = await api.get('/sys/areas/list', { params })
     const { code, data, total } = response.data
 
     if (code === 200) {
@@ -442,7 +442,7 @@ const onLevelChange = async (level: number) => {
   if (level > 1) {
     // 加载父级选项
     try {
-      const response = await api.get('/admin/areas/list', {
+      const response = await api.get('/sys/areas/list', {
         params: { level: level - 1, status: 1 }
       })
       if (response.data.code === 200) {
@@ -459,7 +459,7 @@ const onFormLevelChange = async (level: number) => {
   formData.value.parentId = null
   if (level > 1) {
     try {
-      const response = await api.get('/admin/areas/list', {
+      const response = await api.get('/sys/areas/list', {
         params: { level: level - 1, status: 1 }
       })
       if (response.data.code === 200) {
@@ -513,7 +513,7 @@ const showAreaDialog = (mode: 'add' | 'edit', area?: Area) => {
 // 提交表单
 const handleSubmit = async () => {
   try {
-    const url = dialogMode.value === 'add' ? '/admin/areas/add' : '/admin/areas/update'
+    const url = dialogMode.value === 'add' ? '/sys/areas/add' : '/sys/areas/update'
 
     const submitData = {
       ...formData.value,
@@ -546,7 +546,7 @@ const handleSubmit = async () => {
 // 切换状态
 const toggleStatus = async (area: Area) => {
   try {
-    const response = await api.post('/admin/areas/status', {
+    const response = await api.post('/sys/areas/status', {
       id: area.id,
       status: !area.status
     })
@@ -579,7 +579,7 @@ const confirmDelete = (area: Area) => {
     persistent: true
   }).onOk(async () => {
     try {
-      const response = await api.delete(`/admin/areas/${area.id}`)
+      const response = await api.delete(`/sys/areas/${area.id}`)
 
       const { code, msg } = response.data
       if (code === 200) {

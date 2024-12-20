@@ -30,8 +30,22 @@
             @remove="removeValue(index, valueIndex)"
             color="primary"
             text-color="white"
+            class="value-chip"
           >
-            {{ value.propValue }}
+            <div class="row items-center no-wrap">
+              <span class="q-mr-sm">{{ value.propValue }}</span>
+              <q-btn
+                flat
+                round
+                dense
+                color="white"
+                icon="edit"
+                size="xs"
+                @click.stop="editValue(index, valueIndex)"
+              >
+                <q-tooltip>编辑属性值</q-tooltip>
+              </q-btn>
+            </div>
           </q-chip>
         </div>
 
@@ -129,6 +143,39 @@
             color="primary"
             @click="confirmAddProp"
             :disable="!selectedProp || !selectedValues.length"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- 添加编辑属性值对话框 -->
+    <q-dialog v-model="showEditDialog" persistent>
+      <q-card style="min-width: 300px">
+        <q-card-section>
+          <div class="text-h6">编辑属性值</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-input
+            v-model="editValueInput"
+            label="属性值"
+            outlined
+            dense
+            :rules="[
+              val => !!val || '请输入属性值',
+              val => !isValueDuplicate(val) || '该属性值已存在'
+            ]"
+            @keyup.enter="confirmEdit"
+          />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="取消" color="primary" v-close-popup />
+          <q-btn
+            label="确定"
+            color="primary"
+            @click="confirmEdit"
+            :disable="!editValueInput || isValueDuplicate(editValueInput)"
           />
         </q-card-actions>
       </q-card>
@@ -438,6 +485,66 @@ const addValueToProp = async (propIndex: number) => {
     })
   }
 }
+
+// 添加编辑相关的响应式变量
+const showEditDialog = ref(false)
+const editValueInput = ref('')
+const currentPropIndex = ref(-1)
+const currentValueIndex = ref(-1)
+
+// 编辑属性值
+function editValue(propIndex: number, valueIndex: number) {
+  currentPropIndex.value = propIndex
+  currentValueIndex.value = valueIndex
+  const prop = propList.value[propIndex]
+  if (prop && prop.values[valueIndex]) {
+    editValueInput.value = prop.values[valueIndex].propValue
+    showEditDialog.value = true
+  }
+}
+
+// 检查属性值是否重复
+function isValueDuplicate(value: string): boolean {
+  const prop = propList.value[currentPropIndex.value]
+  if (!prop) return false
+
+  return prop.values.some((v, index) => 
+    v.propValue === value && index !== currentValueIndex.value
+  )
+}
+
+// 确认编辑
+function confirmEdit() {
+  if (!editValueInput.value) return
+
+  const prop = propList.value[currentPropIndex.value]
+  if (!prop) return
+
+  try {
+    // 更新属性值
+    prop.values[currentValueIndex.value].propValue = editValueInput.value
+    
+    // 更新数据
+    updateModelValue()
+    
+    // 关闭对话框并重置状态
+    showEditDialog.value = false
+    editValueInput.value = ''
+    currentPropIndex.value = -1
+    currentValueIndex.value = -1
+
+    $q.notify({
+      type: 'positive',
+      message: '属性值已更新'
+    })
+  } catch (error) {
+    console.error('更新属性值失败:', error)
+    $q.notify({
+      type: 'negative',
+      message: '更新属性值失败'
+    })
+  }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -501,6 +608,25 @@ const addValueToProp = async (propIndex: number) => {
 
   .q-btn.q-mb-lg {
     margin-top: 16px;
+  }
+
+  .value-chip {
+    transition: all 0.3s ease;
+    padding-right: 8px;
+
+    .q-btn {
+      margin-left: 4px;
+      opacity: 0.8;
+      
+      &:hover {
+        opacity: 1;
+      }
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
   }
 }
 </style>

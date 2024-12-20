@@ -165,7 +165,7 @@ const categoryOptions = ref<CategoryOption[]>([
 // 获取分类列表
 const fetchCategories = async () => {
   try {
-    const res = await api.get('/category/list')
+    const res = await api.get('/sys/category/list')
     if (res.data.succ) {
       categoryOptions.value = [
         { categoryId: 0, categoryName: t('顶级分类'), parentId: -1 },

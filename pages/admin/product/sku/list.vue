@@ -1,13 +1,18 @@
 <template>
   <div class="sku-list">
     <!-- 面包屑导航 -->
-    <div class="breadcrumb q-pa-md bg-white">
-      <q-breadcrumbs>
-        <q-breadcrumbs-el label="商品管理" icon="shopping_bag" />
-        <q-breadcrumbs-el label="商品列表" to="/admin/product/list" />
-        <q-breadcrumbs-el label="SKU列表" />
-      </q-breadcrumbs>
-    </div>
+    <q-card-section class="row items-center q-pb-none">
+      <div class="text-h6">SKU 列表</div>
+      <q-space />
+      <q-btn
+          icon="arrow_back"
+          flat
+          round
+          dense
+          v-close-popup
+          @click="router.back()"
+      />
+    </q-card-section>
 
     <!-- 商品信息卡片 -->
     <q-card v-if="productInfo" class="product-info q-ma-md">
@@ -92,8 +97,17 @@
 
     <!-- SKU列表表格 -->
     <q-card class="q-ma-md">
+
       <q-card-section>
         <div class="text-h6">SKU列表</div>
+      </q-card-section>
+      <q-card-section>
+        <q-input
+            v-model="multiple"
+            dense
+            outlined
+            style="min-width: 200px"
+        />
       </q-card-section>
 
       <q-card-section>
@@ -141,11 +155,17 @@
               />
             </q-td>
           </template>
-
           <!-- 价格编辑 -->
           <template v-slot:body-cell-price="props">
             <q-td :props="props">
               <div class="price-edit">
+                <q-input
+                    v-model="props.row.rmb"
+                    dense
+                    outlined
+                    label="人民币"
+                    @update:model-value="value => headUpdatePrice(props.row, value)"
+                />
                 <money-input
                   v-model="props.row.price"
                   dense
@@ -266,6 +286,11 @@
           </template>
         </q-table>
       </q-card-section>
+      <q-card-section>
+        <source-price-component
+            :source-url="productInfo?.sourceUrl"
+        />
+      </q-card-section>
     </q-card>
 
     <!-- 图片上传对话框 -->
@@ -305,9 +330,9 @@ import { useQuasar } from 'quasar'
 import { api } from '~/utils/axios'
 import MoneyInput from '~/components/common/MoneyInput.vue'
 import ImageUploader from '~/components/ImageUploader.vue'
+const router = useRouter()
 
 const route = useRoute()
-const router = useRouter()
 const $q = useQuasar()
 
 // 商品类型枚举
@@ -423,7 +448,7 @@ async function loadData() {
     // if (productResponse.data.code === 200) {
     //   productInfo.value = productResponse.data.data
     // }
-    const response = await api.get(`/sys/prod/detail?id=${prodId.value}`)
+    const response = await api.get(`/sys/prod/detail/${prodId.value}`)
     const result = await response.data
     //console.log('商品数据:', result)
 
@@ -530,7 +555,40 @@ function handleStockChange(sku: any, value: number) {
   sku.actualStocks = value
   sku.modified = true
 }
+const multiple=ref(1.6);
+function headUpdatePrice(sku: any,price:number) {
+  sku.modified = true
+  // 获取元素值并转换为浮点数
+  // let multiple = 1.6;
 
+  // 计算初始 usprice
+  let uspriceInitial = (price / 7) * multiple.value;
+
+  // 四舍五入到一位小数
+  let uspriceRounded = parseFloat(uspriceInitial.toFixed(1));
+
+  // 确保结果以 9 结尾
+  let uspriceFinal;
+  if (uspriceRounded % 1 !== 0.9) { // 检查小数部分是否为 .9
+    uspriceFinal = Math.floor(uspriceRounded) + 0.9;
+  } else {
+    uspriceFinal = uspriceRounded;
+  }
+  sku.price=uspriceFinal;
+  if(20> sku.price) {
+    sku.oriPrice = uspriceFinal + 3;
+  }else {
+    if (50 > sku.price) {
+      sku.oriPrice = uspriceFinal + 4;
+    }else{
+      if (100 > sku.price) {
+        sku.oriPrice = uspriceFinal + 10;
+      }else{
+        sku.oriPrice = uspriceFinal + 20;
+      }
+    }
+  }
+}
 async function handleStatusChange(sku: any) {
    const response= await api.post('/sys/sku/update/status',  JSON.stringify({
       "skuId": sku.skuId,
@@ -565,7 +623,7 @@ async function saveSkuChanges(sku: any) {
       presellFinalPayment: Number(sku.presellFinalPayment || 0)
     }
 
-    const response = await api.post('/sku/edit', submitData)
+    const response = await api.post('/sys/sku/update', submitData)
 
     if (response.data.code === 200) {
       delete sku.modified

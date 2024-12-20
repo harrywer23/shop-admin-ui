@@ -226,7 +226,7 @@ const loadOrderDetails = async () => {
   //console.log("orderNumber:",route.query.orderNumber)
   loading.value = true
   try {
-    const response = await api.get(`/admin/order/info?orderNumber=${route.query.orderNumber}`)
+    const response = await api.get(`/sys/order/info?orderNumber=${route.query.orderNumber}`)
     const { code, data } = response.data
     if (code === 200) {
       order.value = data

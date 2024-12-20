@@ -1,259 +1,207 @@
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
+<script lang="ts" setup>
+import {onMounted, ref} from 'vue';
+import { Dialog, Notify } from 'quasar';
+import {useRouter} from "vue-router";
+import {api} from "~/utils/axios";
+import {API_CONSTANTS} from "~/utils/constants";
+const router = useRouter(); // 使用 Vue Router 的 useRouter 函数
 
-const slide = ref(0)
+const username = ref('');
+const password = ref('');
+const uuid = ref('');
+const captcha = ref('');
+const accept = ref(false);
 
-const banners = ref([])
-// 商品数据
-const hotProdList = ref([])
-const newProdList = ref([])
-const moreProdList = ref([])
-// 加载Banner列表
-const loadBanners = async () => {
+async function onSubmit() {
+  if (!accept.value) {
+    Notify.create({
+      color: 'red-5',
+      textColor: 'white',
+      icon: 'warning',
+      message: 'You need to accept the license and terms first'
+    })
+    return;
+  }
+
   try {
-    const response = await api.get(`/banner/list?position=home`)
-    const { code, data, total } = response.data
+    const response = await api.post("/sysUser/login", {
+      username: username.value,
+      password: password.value,
+      uuid: uuid.value,
+      code: captcha.value,
+      captcha: captcha.value,
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-    if (code === 200) {
-      banners.value = data
+    const data = response.data;
+    if (data.code == 200) {
+      const token = useCookie('token', {
+        maxAge: 60 * 60 * 24 * 7, // 7天过期
+        path: '/',  // 添加路径
+        secure: process.env.NODE_ENV === 'production', // 在生产环境中使用 HTTPS
+        sameSite: 'strict'  // 增加安全性
+      });
+
+      const userInfo = useCookie('userInfo', { maxAge: 60 * 60 * 24 * 7, path: '/' });
+      const accessToken = useCookie('accessToken', { maxAge: 60 * 60 * 24 * 7, path: '/' });
+      const refreshToken = useCookie('refreshToken', { maxAge: 60 * 60 * 24 * 7, path: '/' });
+      const userId = useCookie('id', { maxAge: 60 * 60 * 24 * 7, path: '/' });
+
+      token.value = data.token;
+      userInfo.value = JSON.stringify(data.user);
+      accessToken.value = data.accessToken;
+      refreshToken.value = data.refreshToken;
+      userId.value = data.user.id.toString();
+
+      Dialog.create({
+        color: 'positive',
+        message: '登录成功'
+      });
+
+      setTimeout(() => {
+        router.push('/admin');
+      }, 500);
     } else {
-      banners.value = []
-      throw new Error('加载Banner列表失败')
+      // await refreshCaptcha();
+      Dialog.create({
+        color: 'red-5',
+        message: data.msg
+      });
     }
   } catch (error) {
-    console.error('加载Banner列表失败:', error)
-
+    // await refreshCaptcha();
+    Dialog.create({
+      color: 'red-5',
+      message: '登录失败，请重试'
+    });
   }
 }
 
-// 加载商品数据
-const loaHotProducts = async () => {
-  try {
-    const response = await api.get('/prod/listByTagId?pageNum=1&pageSize=8&tagId=2')
-    const data = await response.data;
-    hotProdList.value = data.data
-    //console.log('hotProdList', hotProdList.value)
-  } catch (error) {
-    console.error('获取商品数据失败:', error)
+function login(){
+  if (!accept.value) {
+    Notify.create({
+      color: 'red-5',
+      textColor: 'white',
+      icon: 'warning',
+      message: 'You need to accept the license and terms first'
+    })
+    return;
   }
-}
-const loaNewProducts = async () => {
-  try {
-    const response = await api.get('/prod/listByTagId?page=1&pageSize=8&tagId=1')
-    const data = await response.data;
-    newProdList.value = data.data
-    //console.log('newProdList', newProdList.value)
-  } catch (error) {
-    console.error('获取商品数据失败:', error)
+  const captchaConfig = {
+    // 请求验证码接口
+    // 验证验证码接口
+    requestCaptchaDataUrl: API_CONSTANTS.BASE_URL+"/gen",
+    validCaptchaUrl: API_CONSTANTS.BASE_URL+"/check",
+    // requestCaptchaDataUrl: "https://admin.51x.uk/gen",
+    // validCaptchaUrl: "https://admin.51x.uk/check",
+    // 绑定的div
+    bindEl: "#captcha-box",
+    // 验证成功回调函数
+    validSuccess: (res, c, t) => {
+      //console.log("验证码验证成功回调...")
+      //console.log(res.data.id)
+      // 销毁验证码
+      t.destroyWindow();
+      uuid.value=res.data.id;
+      onSubmit();
+      // alert("验证成功: token:" + res.data.token)
+      //console.log(res)
+      // todo 携带token调用登录接口
+    }
   }
-}
-const loaMoreProducts = async () => {
-  try {
-    const response = await api.get('/prod/listByTagId?page=1&pageSize=8&tagId=3')
-    const data = await response.data;
-    moreProdList.value = data.data
-    //console.log('moreProdList', moreProdList.value)
-  } catch (error) {
-    console.error('获取商品数据失败:', error)
+  // 这里分享一些作者自己调的样式供参考
+  const style = {
+    // 按钮样式
+    btnUrl: "btn3.png",
+    // 背景样式
+    bgUrl: "btn3-bg.jpg",
+    // logo地址
+    logoUrl: "favicon.ico",
+    // 滑动边框样式
+    moveTrackMaskBgColor: "#f7b645",
+    moveTrackMaskBorderColor: "#ef9c0d"
+  }
+  if (process.client) {
+    window.initTAC("tac", captchaConfig, style).then(tac => {
+      tac.init();
+    })
   }
 }
 onMounted(() => {
-  loadBanners()
-  // fetchSystemRandom()
-  loaHotProducts()
-  loaNewProducts()
-  loaMoreProducts()
-
-})
+  if (process.client) {
+    import("~/utils/load.min").then(module => {
+      module.default();
+    });
+  }
+});
+// isLogin();
+// 当组件挂载时，刷新验证码
+// refreshCaptcha();
 </script>
 
 <template>
-  <div class="home-container">
-    <div class="main-content">
-      <!-- 左侧分类导航 -->
-      <div class="category-nav">
-        <ClassComponent />
-      </div>
+  <div class="center-container">
+    <div class="q-pa-md" style="max-width: 600px">
+      <q-card class="my-card">
+        <q-card-section>
+          <div class="text-h6">{{$t(`login.login`)}}</div>
+          <div class="text-subtitle2">{{ $t('login.welcome') }}</div>
+        </q-card-section>
 
-      <!-- 右侧轮播图区域 -->
-      <div class="carousel-section">
-        <q-carousel
-          v-model="slide"
-          animated
-          arrows
-          navigation
-          infinite
-          :autoplay="3000"
-          class="carousel-custom"
-        >
-          <q-carousel-slide
-            v-for="(banner, index) in banners"
-            :key="index"
-            :name="banner.title"
+        <q-card-section class="q-pt-none">
+          <q-form class="q-gutter-md"
           >
-            <q-img
-              :src="getImageUrl(banner.imgUrl)"
-              :ratio="16/9"
-              class="full-height full-width"
-            >
-              <div class="banner-content absolute-bottom">
-                <h2 class="text-h4 text-weight-bold q-mb-sm">{{ banner.title }}</h2>
-                <p class="text-subtitle1 q-mb-none">{{ banner.description }}</p>
-              </div>
-            </q-img>
-          </q-carousel-slide>
-        </q-carousel>
-      </div>
-    </div>
+            <!-- 账号输入框 -->
+            <q-input
+                v-model="username"
+                :rules="[val => val && val.length > 0 || 'Please enter your account']"
+                filled
+                :label="$t('login.name')+' *'"
+                lazy-rules
+            />
 
-    <!-- 商品展示区域 -->
-    <div class="products-section q-mt-lg">
-      <!-- 特色商品 -->
-      <section4-component
-        :title="$t('home.sections.newProducts')"
-        :products="newProdList"
-        more-link="/product/sort"
-      />
+            <!-- 密码输入框 -->
+            <q-input
+                v-model="password"
+                :rules="[val => val && val.length > 0 || 'Please enter your password']"
+                filled
+                :label="$t('login.password')+' *'"
+                type="password"
+            />
 
-      <!-- 新品上市 -->
-      <section4-component
-        :title="$t('home.sections.hotSales')"
-        :products="hotProdList"
-        more-link="/product/sort?sort=newest"
-      />
-      <section4-component
-          :title="$t('home.sections.moreItems')"
-          :products="moreProdList"
-          more-link="/product/sort?sort=newest"
-      />
-    </div>
+            <!-- 接受条款切换 -->
+            <q-toggle v-model="accept" :label="$t(`introTerms`)"></q-toggle>
+            <a href="/privacyPolicy">{{ $t(`useTerms`) }}</a><a href="/use">{{ $t(`privateTerms`) }}</a>
+            <div>
+              <q-btn color="primary" @click="login" :label="$t(`login.login`) " style="width: 100%;"/>
+            </div>
+            <div id="captcha-box"></div>
 
-    <!-- 添加分类产品展示 -->
-    <div class="category-sections">
-      <!-- 写真集 -->
-      <CategoryProducts
-        :title="$t('home.categories.anime')"
-        :category-id="1"
-        more-link="/product/list?parentId=1"
-      />
-
-      <!-- COS -->
-      <CategoryProducts
-        :title="$t('home.categories.game')"
-        :category-id="2"
-        more-link="/product/list?parentId=2"
-      />
-
-      <!-- 其他 -->
-      <CategoryProducts
-        :title="$t('home.categories.movie')"
-        :category-id="3"
-        more-link="/product/list?parentId=3"
-      />
-
-      <!-- 动漫轻娱 -->
-      <CategoryProducts
-        :title="$t('home.categories.novel')"
-        :category-id="4"
-        more-link="/product/list?parentId=4"
-      />
-      <!-- 动漫轻娱 -->
-      <CategoryProducts
-          :title="$t('home.categories.general')"
-          :category-id="5"
-          more-link="/product/list?parentId=5"
-      />
+            <!-- 注册与忘记密码链接 -->
+            <div class="extra-links">
+              <router-link to="/register">{{ $t(`login.regis`) }}</router-link>
+              <router-link to="/admin/forgotPassword">忘记密码?</router-link>
+            </div>
+          </q-form>
+        </q-card-section>
+      </q-card>
     </div>
   </div>
 </template>
-
 <style scoped>
-.home-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.main-content {
+.center-container {
   display: flex;
-  gap: 20px;
-  position: relative;
-  height: 400px;
-  margin-bottom: 40px;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* 使容器至少与视口一样高 */
 }
 
-.category-nav {
-  flex: none;
-  width: 220px;
-  position: relative;
-  z-index: 20;
-}
-
-.carousel-section {
-  flex: 1;
-  position: relative;
-  z-index: 10;
-  margin-left: 20px;
-}
-
-:deep(.sub-categories-panel) {
-  width: calc(100vw - 280px) !important;
-  max-width: 900px !important;
-  min-width: 600px !important;
-}
-
-.carousel-custom {
-  height: 100%;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.banner-content {
-  padding: 24px;
-  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-}
-
-.banner-content h2 {
-  color: white;
-  margin: 0;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-}
-
-.banner-content p {
-  color: rgba(255,255,255,0.9);
-  margin: 8px 0 0;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-}
-
-.products-section {
-  margin-top: 40px;
-}
-
-.category-sections {
-  margin-top: 40px;
-}
-
-/* 响应式布局 */
-@media (max-width: 768px) {
-  .main-content {
-    flex-direction: column;
-    height: auto;
-    gap: 12px;
-  }
-
-  .category-nav {
-    width: 100%;
-  }
-
-  .carousel-section {
-    margin-left: 0;
-    height: 300px;
-  }
-
-  :deep(.sub-categories-panel) {
-    width: calc(100vw - 40px) !important;
-    min-width: unset !important;
-    left: 20px !important;
-  }
+.extra-links {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
 }
 </style>

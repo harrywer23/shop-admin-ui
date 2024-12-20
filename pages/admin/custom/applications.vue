@@ -134,7 +134,7 @@
               :label="t('custom.applications.viewDetails')"
               @click="viewDetails(application.id)"
             />
-            
+
             <!-- 取消申请按钮 -->
             <q-btn
               v-if="application.status === 'pending'"
@@ -179,7 +179,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { api } from '@/utils/axios'
+import { api } from '~/utils/axios'
 import { useQuasar } from 'quasar'
 import { date } from 'quasar'
 
@@ -404,4 +404,4 @@ onMounted(() => {
     border-radius: 4px;
   }
 }
-</style> 
+</style>

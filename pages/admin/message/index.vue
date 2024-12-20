@@ -323,7 +323,7 @@ const loadMessages = async () => {
       ...filters.value
     }
 
-    const response = await api.get('/admin/message/list', { params })
+    const response = await api.get('/sys/message/list', { params })
     const { code, data, total } = response.data
 
     if (code === 200) {
@@ -363,7 +363,7 @@ const handleReply = async () => {
   if (!replyDialog.value.currentMessage) return
 
   try {
-    const response = await api.post('/admin/message/reply', {
+    const response = await api.post('/sys/message/reply', {
       id: replyDialog.value.currentMessage.id,
       reply: replyDialog.value.content
     })
@@ -391,7 +391,7 @@ const handleReply = async () => {
 // 切换状态
 const toggleStatus = async (message: Message) => {
   try {
-    const response = await api.post('/admin/message/status', {
+    const response = await api.post('/sys/message/status', {
       id: message.id,
       status: message.status ? 0 : 1
     })
@@ -424,7 +424,7 @@ const confirmDelete = (message: Message) => {
     persistent: true
   }).onOk(async () => {
     try {
-      const response = await api.delete(`/admin/message/${message.id}`)
+      const response = await api.delete(`/sys/message/${message.id}`)
 
       const { code, msg } = response.data
       if (code === 200) {
@@ -461,9 +461,9 @@ const showCreateDialog = () => {
 // 处理创建消息
 const handleCreate = async () => {
   try {
-    const response = await api.post('/admin/message', createDialog.value.form)
+    const response = await api.post('/sys/message', createDialog.value.form)
     const { code, msg } = response.data
-    
+
     if (code === 200) {
       $q.notify({
         type: 'positive',

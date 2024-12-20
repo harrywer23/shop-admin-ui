@@ -8,13 +8,13 @@
           color="primary"
           icon="category"
           label="分类管理"
-          @click="router.push('/admin/forum/category')"
+          @click="router.push('/sys/forum/category')"
         />
         <q-btn
           color="primary"
           icon="topic"
           label="主题管理"
-          @click="router.push('/admin/forum/topic')"
+          @click="router.push('/sys/forum/topic')"
         />
       </div>
     </div>
@@ -309,7 +309,7 @@ const columns = [
   { name: 'likes', label: '点赞数', field: 'likes', sortable: true, align: 'right' },
   { name: 'comments', label: '评论数', field: 'comments', sortable: true, align: 'right' },
   { name: 'status', label: '状态', field: 'status', align: 'center' },
-  { name: 'createdAt', label: '发布时间', field: 'createdAt', sortable: true, align: 'center' },
+  { name: 'created_at', label: '发布时间', field: 'created_at', sortable: true, align: 'center' },
   { name: 'actions', label: '操作', align: 'center' }
 ]
 
@@ -328,7 +328,7 @@ const categoryOptions = ref([])
 const loading = ref(false)
 const posts = ref([])
 const pagination = ref({
-  sortBy: 'createdAt',
+  sortBy: 'created_at',
   descending: true,
   page: 1,
   rowsPerPage: 10,
@@ -353,7 +353,7 @@ const approveDialog = reactive({
 // 加载统计数据
 const loadStatistics = async () => {
   try {
-    const response = await api.get('/admin/forum/statistics')
+    const response = await api.get('/sys/forum/statistics')
     if (response.data.code === 200) {
       statistics.value = response.data.data
     }
@@ -365,7 +365,7 @@ const loadStatistics = async () => {
 // 加载分类选项
 const loadCategories = async () => {
   try {
-    const response = await api.get('/admin/forum/category/list')
+    const response = await api.get('/sys/forum/category/list')
     if (response.data.code === 200) {
       categoryOptions.value = response.data.data.map((item: any) => ({
         label: item.name,
@@ -393,7 +393,7 @@ const loadPosts = async () => {
       endTime: filters.dateRange?.to
     }
 
-    const response = await api.get('/admin/forum/post/list', { params })
+    const response = await api.get('/sys/forum/topic/list', { params })
     const { code, data } = response.data
 
     if (code === 200) {
@@ -453,7 +453,7 @@ const viewPost = (post: any) => {
 
 // 编辑帖子
 const editPost = (post: any) => {
-  router.push(`/admin/forum/post/${post.id}`)
+  router.push(`/sys/forum/topic/${post.id}`)
 }
 
 // 显示审核对话框
@@ -466,7 +466,7 @@ const showApproveDialog = (post: any) => {
 // 处理置顶
 const handleTop = async (post: any) => {
   try {
-    const response = await api.post('/admin/forum/post/top', {
+    const response = await api.post('/sys/forum/topic/top', {
       id: post.id,
       isTop: !post.isTop
     })
@@ -490,7 +490,7 @@ const handleTop = async (post: any) => {
 // 处理加精
 const handleHighlight = async (post: any) => {
   try {
-    const response = await api.post('/admin/forum/post/highlight', {
+    const response = await api.post('/sys/forum/topic/highlight', {
       id: post.id,
       isHighlight: !post.isHighlight
     })
@@ -514,7 +514,7 @@ const handleHighlight = async (post: any) => {
 // 处理审核通过
 const handleApprove = async () => {
   try {
-    const response = await api.post('/admin/forum/post/approve', {
+    const response = await api.post('/sys/forum/topic/approve', {
       id: approveDialog.postId,
       reason: approveDialog.reason
     })
@@ -547,7 +547,7 @@ const handleReject = async () => {
   }
 
   try {
-    const response = await api.post('/admin/forum/post/reject', {
+    const response = await api.post('/sys/forum/topic/reject', {
       id: approveDialog.postId,
       reason: approveDialog.reason
     })
@@ -579,7 +579,7 @@ const handleOffline = async (post: any) => {
       persistent: true
     })
 
-    const response = await api.post('/admin/forum/post/offline', {
+    const response = await api.post('/sys/forum/topic/offline', {
       id: post.id,
       status: 3
     })
@@ -612,7 +612,7 @@ const deletePost = async (post: any) => {
       persistent: true
     })
 
-    const response = await api.delete(`/admin/forum/post/\${post.id}`)
+    const response = await api.delete(`/sys/forum/topic/${post.id}`)
     if (response.data.code === 200) {
       $q.notify({
         type: 'positive',

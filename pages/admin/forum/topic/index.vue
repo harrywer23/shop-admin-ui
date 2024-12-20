@@ -267,7 +267,7 @@ const getStatusColor = (status: number) => {
 // 加载分类列表
 const loadCategories = async () => {
   try {
-    const response = await api.get('/admin/forum/category/list')
+    const response = await api.get('/sys/forum/category/list')
     const { code, data } = response.data
     if (code === 200) {
       categories.value = data
@@ -289,7 +289,7 @@ const loadTopics = async () => {
       ...filters.value
     }
 
-    const response = await api.get('/admin/forum/topic/list', { params })
+    const response = await api.get('/sys/forum/topic/list', { params })
     const { code, data, total } = response.data
     if (code === 200) {
       topics.value = data
@@ -324,7 +324,7 @@ const viewTopic = (topic: any) => {
 // 切换置顶状态
 const toggleTop = async (topic: any) => {
   try {
-    const response = await api.post('/admin/forum/topic/top', {
+    const response = await api.post('/sys/forum/topic/top', {
       id: topic.id,
       isTop: !topic.isTop
     })
@@ -351,7 +351,7 @@ const toggleTop = async (topic: any) => {
 // 切换精华状态
 const toggleEssence = async (topic: any) => {
   try {
-    const response = await api.post('/admin/forum/topic/essence', {
+    const response = await api.post('/sys/forum/topic/essence', {
       id: topic.id,
       isEssence: !topic.isEssence
     })
@@ -378,7 +378,7 @@ const toggleEssence = async (topic: any) => {
 // 切换状态
 const toggleStatus = async (topic: any) => {
   try {
-    const response = await api.post('/admin/forum/topic/status', {
+    const response = await api.post('/sys/forum/topic/status', {
       id: topic.id,
       status: topic.status === 1 ? 2 : 1
     })
@@ -411,7 +411,7 @@ const confirmDelete = (topic: any) => {
     persistent: true
   }).onOk(async () => {
     try {
-      const response = await api.delete(`/admin/forum/topic/${topic.id}`)
+      const response = await api.delete(`/sys/forum/topic/${topic.id}`)
 
       const { code, msg } = response.data
       if (code === 200) {

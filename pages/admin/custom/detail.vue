@@ -228,7 +228,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { api } from '@/utils/axios'
+import { api } from '~/utils/axios'
 import { useQuasar } from 'quasar'
 import { date } from 'quasar'
 
@@ -402,4 +402,4 @@ onMounted(() => {
     border-radius: 8px;
   }
 }
-</style> 
+</style>

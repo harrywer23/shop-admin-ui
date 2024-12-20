@@ -7,7 +7,7 @@
           color="primary"
           icon="add"
           label="新增商品"
-          @click="router.push('/admin/product/create')"
+          @click="router.push('/sys/product/create')"
         />
 
         <!-- 修改分类选择器 -->
@@ -65,6 +65,29 @@
             dense
             outlined
             class="price-input"
+            style="width: 100px"
+          />
+        </div>
+
+        <!-- 添加库存区间搜索 -->
+        <div class="stock-range q-ml-md">
+          <q-input
+            v-model.number="queryParams.minStock"
+            type="number"
+            placeholder="最低库存"
+            dense
+            outlined
+            class="stock-input"
+            style="width: 100px"
+          />
+          <span class="q-mx-sm">-</span>
+          <q-input
+            v-model.number="queryParams.maxStock"
+            type="number"
+            placeholder="最高库存"
+            dense
+            outlined
+            class="stock-input"
             style="width: 100px"
           />
         </div>
@@ -161,6 +184,12 @@
               class="q-ma-sm"
             />
             <q-chip
+                :color="getQualityColor(product.quality)"
+                text-color="white"
+                :label="product.categoryId"
+                class="q-ma-sm"
+            />
+            <q-chip
               :color="getQualityColor(product.quality)"
               text-color="white"
               class="q-ma-sm"
@@ -174,15 +203,32 @@
         <div class="product-actions">
           <q-btn-group flat class="action-group">
             <!-- 基本信息编辑 -->
-            <q-btn
+            <q-btn-dropdown
               color="primary"
               icon="edit"
               flat
               dense
-              @click="handleBasicEdit(product)"
             >
-              <q-tooltip>基本信息</q-tooltip>
-            </q-btn>
+              <q-list>
+                <q-item clickable v-close-popup @click="handleBasicEdit(product)">
+                  <q-item-section avatar>
+                    <q-icon name="edit" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>基本信息</q-item-label>
+                  </q-item-section>
+                </q-item>
+
+                <q-item clickable v-close-popup @click="handleBriefEdit(product)">
+                  <q-item-section avatar>
+                    <q-icon name="description" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>商品简述</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-btn-dropdown>
 
             <!-- 商品详情编辑 -->
             <q-btn
@@ -424,7 +470,7 @@
     <q-dialog v-model="showQualityDialog">
       <q-card style="min-width: 350px">
         <q-card-section>
-          <div class="text-h6">修改商品品质</div>
+          <div class="text-h6">修改��品品质</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
@@ -501,7 +547,7 @@ import CachedImage from "~/components/common/CachedImage.vue";
 const router = useRouter()
 const $q = useQuasar()
 const token = useCookie('token');
-// ��义分类接口
+// 定义分类接口
 interface Category {
   categoryId: string
   categoryName: string
@@ -520,6 +566,8 @@ const queryParams = ref({
     categoryId:null,
     minPrice: null,
     maxPrice: null,
+    minStock: null,
+    maxStock: null,
     quality: null
 });
 
@@ -527,7 +575,7 @@ const queryParams = ref({
 // 状态和数据
 const productList = ref([])
 const currentPage = ref(1)
-const pageSize = ref(12)
+const pageSize = ref(15)
 const totalPages = ref(1)
 const filterStatus = ref(null)
 const searchKeyword = ref('')
@@ -550,7 +598,7 @@ const deliveryForm = ref({
   transportInfo: null as any
 })
 
-// 添加新的响应式变量
+// 添加的响应式变量
 const showQualityDialog = ref(false)
 const selectedQuality = ref(null)
 const currentEditingProduct = ref(null)
@@ -596,7 +644,7 @@ async function loadCategories() {
     const result = response.data
 
     if (result.code === 200) {
-      // 处理多级分类数据
+      // 处理多级分类数
       const processCategories = (cats: any[]) => {
         return cats.map(cat => ({
           label: cat.categoryName,
@@ -696,6 +744,8 @@ const resetSearch = () => {
     prodName: null,
     minPrice: null,
     maxPrice: null,
+    minStock: null,
+    maxStock: null,
     quality: null
   }
   handleSearch()
@@ -709,13 +759,13 @@ onMounted(() => {
 
 // 处理编辑
 function handleEdit(product) {
-  router.push(`/admin/product/edit?prodId=${product.prodId}&categoryId=${product.categoryId}`)
+  router.push(`/sys/product/edit?prodId=${product.prodId}&categoryId=${product.categoryId}`)
 }
 
 // 处理状态变
 async function handleStatusChange(product) {
   try {
-    const response = await api.put(`/sys/prod/prod/status/${product.prodId}/${product.status === 1 ? 0 : 1}`)
+    const response = await api.get(`/sys/prod/update/status/${product.prodId}/${product.status === 1 ? 0 : 1}`)
     const result = await response.data
 
     if (result.code === 200) {
@@ -736,12 +786,12 @@ async function handleStatusChange(product) {
 
 // 处理查看
 function handleView(product) {
-  window.open(`/admin/product/detail?prodId=${product.prodId}&categoryId=${product.categoryId}`, '_blank')
+  window.open(`/sys/product/detail?prodId=${product.prodId}&categoryId=${product.categoryId}`, '_blank')
 }
 
 // 处理订单列表
 function handleOrders(product) {
-  router.push(`/admin/orders?prodId=${product.prodId}`)
+  router.push(`/sys/orders?prodId=${product.prodId}`)
 }
 
 // 处理删除
@@ -755,7 +805,7 @@ async function confirmDelete() {
   if (!productToDelete.value) return
 
   try {
-    const response = await api.delete(`/sys/prod/prod/${productToDelete.value.prodId}`)
+    const response = await api.delete(`/sys/prod/remove/${productToDelete.value.prodId}`)
     const result = await response.data
 
     if (result.code === 200) {
@@ -779,22 +829,22 @@ async function confirmDelete() {
 
 // 基本信息编辑
 const handleBasicEdit = (product) => {
-  router.push(`/admin/product/edit/basic?prodId=${product.prodId}`)
+  window.open(`/sys/product/edit/basic?prodId=${product.prodId}`, '_blank')
 }
 
 // 商品详情编辑
 const handleDetailEdit = (product) => {
-  router.push(`/admin/product/edit/detail?prodId=${product.prodId}`)
+  window.open(`/sys/product/edit/detail?prodId=${product.prodId}`, '_blank')
 }
 
 // 标签管理
 const handleTagEdit = (product) => {
-  router.push(`/admin/product/edit/tags?prodId=${product.prodId}`)
+  window.open(`/sys/product/edit/tags?prodId=${product.prodId}`, '_blank')
 }
 
 // 规格参数
 const handleSpecEdit = (product) => {
-  router.push(`/admin/product/edit/spec?prodId=${product.prodId}`)
+  router.push(`/sys/product/edit/spec?prodId=${product.prodId}`)
 }
 
 // 运费设置
@@ -823,12 +873,12 @@ const handleDeliveryEdit = (product: any) => {
 
 // 宣传图片
 const handleImageEdit = (product) => {
-  router.push(`/admin/product/edit/image?prodId=${product.prodId}`)
+  router.push(`/sys/product/edit/image?prodId=${product.prodId}`)
 }
 
 // 预售信息(仅预售商品显示)
 const handlePresellEdit = (product) => {
-  router.push(`/admin/product/edit/presell?prodId=${product.prodId}`)
+  window.open(`/sys/product/edit/presell?prodId=${product.prodId}`, '_blank')
 }
 
 // 处理运输方式变更
@@ -915,17 +965,17 @@ async function saveDeliverySettings() {
 
 // 处理宣传图片管理
 function handlePromoImages(product) {
-  router.push(`/admin/product/edit/image?prodId=${product.prodId}`)
+  window.open(`/sys/product/edit/image?prodId=${product.prodId}`, '_blank')
 }
 
 function handleViewSkuTag(product) {
-  router.push(`/admin/product/edit/sku?prodId=${product.prodId}`)
+  window.open(`/sys/product/edit/sku?prodId=${product.prodId}`, '_blank')
 }
 
 
 // 修改查看SKU按钮的处理方法
 function handleViewSkus(product: any) {
-  router.push(`/admin/product/sku/list?prodId=${product.prodId}`)
+  window.open(`/sys/product/sku/list?prodId=${product.prodId}`, '_blank')
 }
 
 
@@ -938,7 +988,7 @@ function previewImage(url: string) {
 
 // 跳转到评论管理页面
 const goToComments = (product: any) => {
-  router.push(`/admin/product/comments/${product.prodId}`)
+  window.open(`/sys/product/comments/${product.prodId}`, '_blank')
 }
 
 // 处理品质编辑
@@ -995,7 +1045,7 @@ const getQualityColor = (quality: string) => {
 const showCategoryDialog = ref(false)
 const selectedNewCategory = ref(null)
 
-// 处理分类编辑
+// 处��分类编辑
 const handleCategoryEdit = (product) => {
   currentEditingProduct.value = product
   selectedNewCategory.value = product.categoryId
@@ -1023,6 +1073,11 @@ const saveCategory = async () => {
       message: '修改商品分类失败'
     })
   }
+}
+
+// 添加处理简述编辑的方法
+const handleBriefEdit = (product) => {
+  window.open(`/sys/product/brief?prodId=${product.prodId}`, '_blank')
 }
 </script>
 
@@ -1058,6 +1113,17 @@ const saveCategory = async () => {
 
       .price-input {
         width: 100px;
+      }
+
+      .stock-range {
+        display: flex;
+        align-items: center;
+
+        .stock-input {
+          :deep(.q-field__native) {
+            text-align: center;
+          }
+        }
       }
 
       .quality-select {
@@ -1240,6 +1306,7 @@ const saveCategory = async () => {
     gap: 8px;
 
     .price-range,
+    .stock-range,
     .quality-select,
     .search-input {
       margin: 4px;

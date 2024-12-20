@@ -143,7 +143,7 @@ const getLangLabel = (key: string) => {
 
 const getNoticeDetail = async (id: string) => {
   try {
-    const response = await api.get(`/admin/notice/detail/${id}`)
+    const response = await api.get(`/sys/notice/detail/${id}`)
     const { code, data } = response.data
     if (code === 200) {
       notice.value = {
@@ -242,4 +242,4 @@ onMounted(() => {
     }
   }
 }
-</style> 
+</style>

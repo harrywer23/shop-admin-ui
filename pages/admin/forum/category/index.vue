@@ -447,7 +447,7 @@ const saveCategory = async () => {
     }
 
     const res = await api.post(
-        isEditMode.value ? `/admin/forum/category/edit` : '/admin/forum/category/add',
+        isEditMode.value ? `/sys/forum/category/edit` : '/sys/forum/category/add',
         data
     )
 
@@ -482,7 +482,7 @@ const confirmDelete = async () => {
   if (!currentDeleteCategory.value) return
 
   try {
-    const res = await api.delete(`/admin/forum/category/del/${currentDeleteCategory.value.id}`)
+    const res = await api.delete(`/sys/forum/category/del/${currentDeleteCategory.value.id}`)
     if (res.data.succ) {
       $q.notify({
         type: 'positive',
@@ -508,7 +508,7 @@ const confirmDelete = async () => {
 
 // 跳转到创建产品页面
 const goToCreateProduct = (category: ForumCategory) => {
-  router.push({ path: '/admin/product/create', query: { id: category.id } })
+  router.push({ path: '/sys/product/create', query: { id: category.id } })
 }
 
 // 在树形结构中显示当前语言的名称

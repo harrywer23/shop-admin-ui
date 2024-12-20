@@ -250,7 +250,11 @@
               </q-select>
             </div>
           </div>
+         <source-price-component
+             :source-url="sourceUrl"
+          >
 
+         </source-price-component>
           <!-- 虚拟物品 -->
           <div class="row q-col-gutter-md">
             <div class="col-12 col-md-4">
@@ -261,43 +265,6 @@
                 :true-value="1"
               />
             </div>
-          </div>
-          <div class="row q-col-gutter-md">
-            <div class="col-2 col-md-3">
-              <a :href="sourceUrl" target="_blank">源地址</a>
-            </div>
-            <div class="col-2 col-md-3">
-             <q-input
-                 v-model.number="price"
-                 type="number"
-                      label="价格"
-                 @update:model-value="headUpdatePrice"
-             />
-          </div>
-          <div class="col-2 col-md-3">
-              <q-input
-                  v-model.number="multiple"
-                  type="number"
-                  label="倍"
-                  @update:model-value="headUpdatePrice"
-
-              />
-          </div>
-            <div class="col-2 col-md-3">
-              <q-input
-                  v-model.number="usprice"
-                  type="number"
-                  label="美元价格"
-              />
-            </div>
-          <div class="col-2 col-md-3">
-              <q-input
-                  v-model.number="rmbprice"
-                  type="number"
-                       label="人民币价格"
-              />
-          </div>
-
           </div>
           <!-- 提交按钮 -->
           <div class="row justify-end q-mt-md">
@@ -408,15 +375,7 @@ const form = ref({
 })
 
 const submitting = ref(false)
-const price = ref(0.0)
-const multiple = ref(1.5)
-const rmbprice = ref(0.0)
-const usprice = ref(0.0)
 
-function headUpdatePrice(){
-  usprice.value=price.value/7*multiple.value;
-  rmbprice.value=usprice.value*7;
-}
 // 加载商品数据
 async function loadData() {
   try {

@@ -528,7 +528,7 @@ const columns = ref([
 const loadRules = async () => {
   loading.value = true
   try {
-    const response = await api.get(`/admin/transport/rules/list/${transportId.value}`)
+    const response = await api.get(`/sys/transport/rules/list/${transportId.value}`)
     const { code, data, total } = response.data
 
     if (code === 200) {
@@ -549,7 +549,7 @@ const loadRules = async () => {
 // 加载区域数据
 const loadAreas = async (parentId = 0, level = 1) => {
   try {
-    const response = await api.get('/admin/areas', {
+    const response = await api.get('/sys/areas', {
       params: { parentId, level }
     })
     const { code, data } = response.data
@@ -661,13 +661,13 @@ const handleRuleSubmit = async () => {
     if (typeof ruleDialog.value.data.firstFee !== 'number' || ruleDialog.value.data.firstFee < 0) {
       throw new Error('首费用不能小于0')
     }
-    
+
     // 验证续重/续件费用
-    if (ruleDialog.value.data.additionalUnit !== null && 
+    if (ruleDialog.value.data.additionalUnit !== null &&
         (typeof ruleDialog.value.data.additionalUnit !== 'number' || ruleDialog.value.data.additionalUnit <= 0)) {
       throw new Error('续重/续件必须大于0')
     }
-    if (ruleDialog.value.data.additionalFee !== null && 
+    if (ruleDialog.value.data.additionalFee !== null &&
         (typeof ruleDialog.value.data.additionalFee !== 'number' || ruleDialog.value.data.additionalFee < 0)) {
       throw new Error('续费用不能小于0')
     }
@@ -676,32 +676,32 @@ const handleRuleSubmit = async () => {
     if (typeof ruleDialog.value.data.minOrderAmount !== 'number' || ruleDialog.value.data.minOrderAmount < 0) {
       throw new Error('最低订单金额不能小于0')
     }
-    if (ruleDialog.value.data.maxOrderAmount !== null && 
-        (typeof ruleDialog.value.data.maxOrderAmount !== 'number' || 
+    if (ruleDialog.value.data.maxOrderAmount !== null &&
+        (typeof ruleDialog.value.data.maxOrderAmount !== 'number' ||
          ruleDialog.value.data.maxOrderAmount <= ruleDialog.value.data.minOrderAmount)) {
       throw new Error('最高订单金额必须大于最低订单金额')
     }
 
     // 验证计量限制
-    if (ruleDialog.value.data.minUnit !== null && 
+    if (ruleDialog.value.data.minUnit !== null &&
         (typeof ruleDialog.value.data.minUnit !== 'number' || ruleDialog.value.data.minUnit < 0)) {
       throw new Error(`最小${getUnitLabel()}不能小于0`)
     }
-    if (ruleDialog.value.data.maxUnit !== null && ruleDialog.value.data.minUnit !== null && 
-        (typeof ruleDialog.value.data.maxUnit !== 'number' || 
+    if (ruleDialog.value.data.maxUnit !== null && ruleDialog.value.data.minUnit !== null &&
+        (typeof ruleDialog.value.data.maxUnit !== 'number' ||
          ruleDialog.value.data.maxUnit <= ruleDialog.value.data.minUnit)) {
       throw new Error(`最大${getUnitLabel()}必须大于最小${getUnitLabel()}`)
     }
 
     // 验证免运费条件
-    if (ruleDialog.value.data.freeType && 
+    if (ruleDialog.value.data.freeType &&
         (typeof ruleDialog.value.data.freeCondition !== 'number' || ruleDialog.value.data.freeCondition <= 0)) {
       throw new Error('请设置正确的免运费条件值')
     }
 
     const url = ruleDialog.value.mode === 'add'
-      ? '/admin/transport/rules/add'
-      : '/admin/transport/rules/update'
+      ? '/sys/transport/rules/add'
+      : '/sys/transport/rules/update'
 
     const response = await api.post(url, {
       ...ruleDialog.value.data,
@@ -730,7 +730,7 @@ const handleRuleSubmit = async () => {
 // 切换状态
 const toggleStatus = async (rule: any) => {
   try {
-    const response = await api.post('/admin/transport/rule/status', {
+    const response = await api.post('/sys/transport/rule/status', {
       id: rule.id,
       status: !rule.status
     })
@@ -770,7 +770,7 @@ const confirmDelete = (rule: any) => {
     persistent: true
   }).onOk(async () => {
     try {
-      const response = await api.delete(`/admin/transport/rules/delete/${rule.id}`)
+      const response = await api.delete(`/sys/transport/rules/delete/${rule.id}`)
 
       if (response.data.code === 200) {
         $q.notify({
@@ -799,7 +799,7 @@ const showExcludeDialog = async (rule: any) => {
 
   try {
     // 加载已排除地区
-    const response = await api.get(`/admin/transport/rule/excludes/${rule.id}`)
+    const response = await api.get(`/sys/transport/rule/excludes/${rule.id}`)
     const { code, data } = response.data
     if (code === 200) {
       excludeDialog.value.excludedAreas = data
@@ -821,7 +821,7 @@ const addExcludedArea = async () => {
   if (!excludeDialog.value.selectedArea) return
 
   try {
-    const response = await api.post('/admin/transport/rule/exclude/add', {
+    const response = await api.post('/sys/transport/rule/exclude/add', {
       ruleId: excludeDialog.value.currentRule.id,
       areaId: excludeDialog.value.selectedArea.id
     })
@@ -833,7 +833,7 @@ const addExcludedArea = async () => {
         message: '添加成功'
       })
       // 重新加载排除地区
-      const excludesResponse = await api.get(`/admin/transport/rule/excludes/${excludeDialog.value.currentRule.id}`)
+      const excludesResponse = await api.get(`/sys/transport/rule/excludes/${excludeDialog.value.currentRule.id}`)
       if (excludesResponse.data.code === 200) {
         excludeDialog.value.excludedAreas = excludesResponse.data.data
       }
@@ -852,7 +852,7 @@ const addExcludedArea = async () => {
 // 移除排除地区
 const removeExcludedArea = async (area: any) => {
   try {
-    const response = await api.delete('/admin/transport/rule/exclude/delete', {
+    const response = await api.delete('/sys/transport/rule/exclude/delete', {
       params: {
         ruleId: excludeDialog.value.currentRule.id,
         areaId: area.id
@@ -909,15 +909,15 @@ onMounted(async () => {
     align-items: center;
     margin-bottom: 20px;
   }
-  
+
   // 添加规则说明样式
   ul {
     padding-left: 1.2em;
-    
+
     li {
       margin-bottom: 4px;
       line-height: 1.5;
-      
+
       &:last-child {
         margin-bottom: 0;
       }

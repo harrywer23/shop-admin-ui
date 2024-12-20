@@ -6,30 +6,30 @@
         <img :src="imageUrl" alt="预览图" />
         <div class="image-actions">
           <q-btn
-            flat
-            round
-            color="negative"
-            icon="delete"
-            size="sm"
-            @click="handleRemove"
+              flat
+              round
+              color="negative"
+              icon="delete"
+              size="sm"
+              @click="handleRemove"
           />
         </div>
       </div>
 
       <!-- 上传按钮 -->
       <q-btn
-        v-else
-        class="upload-btn"
-        flat
-        :loading="uploading"
+          v-else
+          class="upload-btn"
+          flat
+          :loading="uploading"
       >
         <q-icon name="add_photo_alternate" size="2rem" />
         <div class="upload-text">点击上传</div>
         <input
-          type="file"
-          class="file-input"
-          accept="image/*"
-          @change="handleFileChange"
+            type="file"
+            class="file-input"
+            accept="image/*"
+            @change="handleFileChange"
         />
       </q-btn>
     </div>
@@ -81,7 +81,7 @@ const handleFileChange = async (event: Event) => {
   if (!file) return
 
   // 验证文件类型
-  if (!['image/jpeg', 'image/png'].includes(file.type)) {
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
     $q.notify({
       type: 'negative',
       message: '只支持 jpg、png 格式的图片',

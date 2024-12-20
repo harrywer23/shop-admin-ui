@@ -276,7 +276,7 @@
             icon="delete"
             size="sm"
             class="delete-btn"
-            @click.stop="handleDelete(props.row.skuId)"
+            @click.stop="handleDelete(props.row)"
           >
             <q-tooltip anchor="center right" self="center left">
               删除此SKU
@@ -290,6 +290,9 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
+import { useQuasar } from 'quasar'
+
+const $q = useQuasar()
 
 // 添加类型定义
 interface SkuProps {
@@ -306,6 +309,7 @@ interface SkuProps {
 // 添加行数据类型
 interface SkuRow {
   skuId: number | string
+  tempId: string  // 添加临时ID字段
   prodType:number
   properties: string
   oriPrice: number
@@ -349,7 +353,7 @@ const props = defineProps({
 
 const emit = defineEmits<{
   'update:modelValue': [value: SkuRow[]]
-  'delete-sku': [value: number | string]
+  'delete-sku': [value: { skuId: number | string, tempId: string }]
 }>()
 
 // 修改列定义计算属性
@@ -487,7 +491,7 @@ function formatProperties(propertiesStr: string): string {
 
   try {
     //console.log('格式化属性字符串:', propertiesStr)
-    //console.log('当前SKU属性配置:', props.skuProps)
+    //console.log('当前SKU属性置:', props.skuProps)
 
     const properties = propertiesStr.split(';')
     const formattedProps = properties.map(prop => {
@@ -536,9 +540,9 @@ watch(() => props.prodType, (newValue) => {
   // })
 }, { immediate: true })
 
-// 添加生成 SKU 编码的方法
+// 添生成 SKU 编码的方法
 function generateSkuCode(row: SkuRow) {
-  // 生成规则：SPU编码 + 规格值组合的 hash
+  // 生成规则：SPU编码 + 格值组合的 hash
   const prefix = props.prodCode || 'SKU'
   const hash = Math.random().toString(36).substring(2, 8).toUpperCase()
   row.skuCode = `${prefix}-${hash}`
@@ -578,9 +582,71 @@ const generateSkuCombinations = (properties: Record<string, any>) => {
   // ... 其他代码保持不变
 }
 
-// 处理删除操作
-function handleDelete(skuId: number | string) {
-  emit('delete-sku', skuId)
+// 修改删除处理函数
+function handleDelete(row: SkuRow) {
+  // 打印完整的行数据，用于调试
+  console.log('准备删除的 SKU 行数据:', {
+    skuId: row.skuId,
+    tempId: row.tempId,
+    properties: row.properties
+  })
+  
+  $q.dialog({
+    title: '确认删除',
+    message: '确定要删除这个 SKU 吗？',
+    cancel: {
+      label: '取消',
+      flat: true,
+      color: 'grey-7'
+    },
+    ok: {
+      label: '删除',
+      color: 'negative'
+    },
+    persistent: true
+  }).onOk(() => {
+    // 使用深拷贝创建新数组
+    const currentList = [...props.modelValue]
+    
+    // 使用 properties 作为唯一标识符来查找要删除的项
+    const deleteIndex = currentList.findIndex(sku => 
+      sku.properties === row.properties
+    )
+
+    if (deleteIndex !== -1) {
+      // 获取要删除的项
+      const deletedSku = currentList[deleteIndex]
+      // 删除该项
+      currentList.splice(deleteIndex, 1)
+      console.log('删除后的 SKU 列表:', currentList)
+      
+      // 更新列表
+      emit('update:modelValue', currentList)
+      // 触发删除事件，确保传递正确的 ID
+      emit('delete-sku', { 
+        skuId: deletedSku.skuId || '', 
+        tempId: deletedSku.tempId || '',
+        properties: deletedSku.properties // 添加 properties 用于调试
+      })
+
+      $q.notify({
+        type: 'positive',
+        message: 'SKU 已删除',
+        position: 'top'
+      })
+    } else {
+      console.error('未找到要删除的 SKU:', {
+        properties: row.properties,
+        skuId: row.skuId,
+        tempId: row.tempId
+      })
+      $q.notify({
+        type: 'negative',
+        message: '删除失败：未找到指定的 SKU',
+        position: 'top'
+      })
+    }
+  })
 }
 </script>
 
@@ -649,7 +715,7 @@ function handleDelete(skuId: number | string) {
     }
   }
 
-  // 优化表格整体布局
+  // ���化表格整体布局
   .q-table__container {
     overflow-x: auto;
     
@@ -658,7 +724,7 @@ function handleDelete(skuId: number | string) {
     }
   }
 
-  // 修改输入框样式
+  // 改输入框样式
   :deep(.q-input) {
     .q-field__inner {
       min-width: 150px;

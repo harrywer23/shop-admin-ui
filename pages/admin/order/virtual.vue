@@ -282,7 +282,7 @@ const loadOrders = async () => {
       ...filters.value
     }
 
-    const response = await api.get('/admin/order/virtual/list', { params })
+    const response = await api.get('/sys/order/virtual/list', { params })
     const { code, data, total } = response.data
 
     if (code === 200) {
@@ -312,7 +312,7 @@ const onRequest = async (props: any) => {
 
 // 查看订单详情
 const viewOrderDetail = (order: VirtualOrder) => {
-  router.push(`/admin/order/virtual/${order.orderVirtualId}`)
+  router.push(`/sys/order/virtual/${order.orderVirtualId}`)
 }
 
 // 显示重置卡密对话框
@@ -328,7 +328,7 @@ const resetCardInfo = (order: VirtualOrder) => {
 // 处理重置卡密
 const handleReset = async () => {
   try {
-    const response = await api.post('/admin/order/virtual/reset-card', resetDialog.value.data)
+    const response = await api.post('/sys/order/virtual/reset-card', resetDialog.value.data)
 
     const { code, msg } = response.data
     if (code === 200) {
@@ -359,7 +359,7 @@ const confirmDelete = (order: VirtualOrder) => {
     persistent: true
   }).onOk(async () => {
     try {
-      const response = await api.delete(`/admin/order/virtual/${order.orderVirtualId}`)
+      const response = await api.delete(`/sys/order/virtual/${order.orderVirtualId}`)
 
       const { code, msg } = response.data
       if (code === 200) {
