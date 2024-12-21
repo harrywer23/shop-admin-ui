@@ -36,7 +36,7 @@ const onSubmit = async () => {
   }
 
   try {
-    const response = await api.post('/workOrder/add', {
+    const response = await api.post('/sys/workOrder/add', {
       title: title.value,
       explanation: content.value,
       workType: type.value

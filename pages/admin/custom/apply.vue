@@ -743,7 +743,7 @@ const submitApplication = async () => {
     }
 
     // 提交申请
-    const response = await api.post('/custom/apply', {
+    const response = await api.post('/sys/custom/apply', {
       ...formData.value,
       referenceImages: imageUrls
     })

@@ -210,7 +210,7 @@ const onSubmit = async () => {
   if (picFile.value) formDataToSend.append('pic', picFile.value)
 
   try {
-    const res = await api.post('/category/add', formDataToSend, {
+    const res = await api.post('/sys/category/add', formDataToSend, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }

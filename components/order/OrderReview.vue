@@ -120,7 +120,7 @@ const submitReview = async () => {
       pics: pictures.value,
       isAnonymous: isAnonymous.value
     }
-    const response = await api.post('/admin/prod/comm/add', reviewData)
+    const response = await api.post('/sys/prod/comm/add', reviewData)
 
     const { code, msg } = response.data
     if (code === 200) {

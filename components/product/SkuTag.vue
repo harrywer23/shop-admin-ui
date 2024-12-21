@@ -46,7 +46,7 @@
             </q-btn>
           </div>
         </q-chip>
-        
+
         <!-- 添加属性值按钮 -->
         <q-btn
           flat
@@ -237,8 +237,8 @@ watch([selectedProps, selectedPropValues], ([props, values]) => {
 const initData = async () => {
   try {
     // 获取规格列表
-    const response = await fetch('/api/specs/list')
-    const data = await response.json()
+    const response = await api.get('/sys/specs/list')
+    const data = await response.data
     dbTags.value = data.data
   } catch (error) {
     console.error('获取规格列表失败:', error)
@@ -270,8 +270,8 @@ const handlePropSelect = async (prop: any) => {
 
   try {
     // 获取选中规格的规格值列表
-    const response = await fetch(`/api/specs/${prop.propId}/values`)
-    const data = await response.json()
+    const response = await api.get(`/sys/specs/${prop.propId}/values`)
+    const data = await response.data
     if(data.code == 200){
 
 
@@ -438,7 +438,7 @@ function showAddValueDialog(propIndex: number) {
 // 编辑属性值
 function editValue(propIndex: number, valueIndex: number) {
   console.log('编辑属性值:', { propIndex, valueIndex })
-  
+
   // 添加防御性检查
   if (propIndex < 0 || valueIndex < 0 || !propList.value[propIndex]) {
     console.error('无效的属性索引:', { propIndex, valueIndex })
@@ -455,11 +455,11 @@ function editValue(propIndex: number, valueIndex: number) {
     showValueDialog.value = true
     console.log('打开编辑对话框:', { propValue, newValueInput: newValueInput.value })
   } else {
-    console.error('无法获取属性值:', { 
-      propIndex, 
-      valueIndex, 
+    console.error('无法获取属性值:', {
+      propIndex,
+      valueIndex,
       prop: propList.value[propIndex],
-      values: propList.value[propIndex]?.values 
+      values: propList.value[propIndex]?.values
     })
   }
 }
@@ -480,7 +480,7 @@ function confirmValue() {
         updateModelValue()
         showValueDialog.value = false
         newValueInput.value = ''
-        
+
         $q.notify({
           type: 'positive',
           message: '属性值已更新'
@@ -488,8 +488,8 @@ function confirmValue() {
       }
     } else {
       // 检查属性值是否重复
-      const isDuplicate = prop.values.some((v, index) => 
-        v.propValue === newValueInput.value && 
+      const isDuplicate = prop.values.some((v, index) =>
+        v.propValue === newValueInput.value &&
         (!isEditingValue.value || index !== currentValueIndex.value)
       )
 
@@ -566,7 +566,7 @@ function handleChipClick(propIndex: number, valueIndex: number) {
     .q-btn {
       margin-left: 4px;
       opacity: 0.8;
-      
+
       &:hover {
         opacity: 1;
       }

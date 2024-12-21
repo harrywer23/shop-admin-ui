@@ -548,7 +548,7 @@ const toggleStatus = async (area: Area) => {
   try {
     const response = await api.post('/sys/areas/status', {
       id: area.id,
-      status: !area.status
+      status: !area.status ? 1 : 0
     })
 
     const { code, msg } = response.data

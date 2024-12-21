@@ -8,13 +8,13 @@
           color="primary"
           icon="category"
           label="分类管理"
-          @click="router.push('/sys/forum/category')"
+          @click="router.push('/admin/forum/category')"
         />
         <q-btn
           color="primary"
           icon="topic"
           label="主题管理"
-          @click="router.push('/sys/forum/topic')"
+          @click="router.push('/admin/forum/topic')"
         />
       </div>
     </div>
@@ -365,9 +365,10 @@ const loadStatistics = async () => {
 // 加载分类选项
 const loadCategories = async () => {
   try {
-    const response = await api.get('/sys/forum/category/list')
-    if (response.data.code === 200) {
-      categoryOptions.value = response.data.data.map((item: any) => ({
+    const response = await api.get('/sys/forum/category/list');
+    const data = response.data;
+    if (data.code === 200) {
+      categoryOptions.value = data.data.map((item: any) => ({
         label: item.name,
         value: item.id
       }))
@@ -397,7 +398,7 @@ const loadPosts = async () => {
     const { code, data } = response.data
 
     if (code === 200) {
-      posts.value = data.records
+      posts.value = data.data
       pagination.value.rowsNumber = data.total
     }
   } catch (error) {

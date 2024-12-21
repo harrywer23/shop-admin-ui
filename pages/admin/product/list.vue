@@ -7,23 +7,20 @@
           color="primary"
           icon="add"
           label="新增商品"
-          @click="router.push('/sys/product/create')"
+          @click="router.push('/admin/product/create')"
         />
 
         <!-- 修改分类选择器 -->
-        <a-tree-select
-          v-model:value="selectedCategory"
-          :tree-data="categories"
+        <Treeselect
+          :modelValue="selectedCategory"
+          @update:modelValue="selectedCategory = $event"
+          :options="categories"
+          :normalizer="normalizer"
           placeholder="选择分类"
-          allow-clear
-          :field-names="{
-            label: 'label',
-            value: 'value',
-            children: 'children'
-          }"
+          :clearable="true"
+          :default-expand-level="Infinity"
           class="q-ml-md category-select"
           style="width: 200px"
-          tree-default-expand-all
         />
 
         <q-btn-group flat class="q-ml-md">
@@ -49,6 +46,7 @@
         <!-- 价格区间搜索 -->
         <div class="price-range">
           <q-input
+            v-if="queryParams"
             v-model.number="queryParams.minPrice"
             type="number"
             placeholder="最低价"
@@ -59,6 +57,7 @@
           />
           <span class="q-mx-sm">-</span>
           <q-input
+            v-if="queryParams"
             v-model.number="queryParams.maxPrice"
             type="number"
             placeholder="最高价"
@@ -72,6 +71,7 @@
         <!-- 添加库存区间搜索 -->
         <div class="stock-range q-ml-md">
           <q-input
+            v-if="queryParams"
             v-model.number="queryParams.minStock"
             type="number"
             placeholder="最低库存"
@@ -82,6 +82,7 @@
           />
           <span class="q-mx-sm">-</span>
           <q-input
+            v-if="queryParams"
             v-model.number="queryParams.maxStock"
             type="number"
             placeholder="最高库存"
@@ -94,6 +95,7 @@
 
         <!-- 品质搜索 -->
         <q-select
+          v-if="queryParams"
           v-model="queryParams.quality"
           :options="qualityOptions"
           label="商品品质"
@@ -372,6 +374,17 @@
               <q-tooltip>修改品质</q-tooltip>
             </q-btn>
 
+            <!-- 添加品牌修改按钮 -->
+            <q-btn
+              color="blue-grey"
+              icon="branding_watermark"
+              flat
+              dense
+              @click="handleBrandEdit(product)"
+            >
+              <q-tooltip>修改品牌</q-tooltip>
+            </q-btn>
+
             <!-- 在操作按钮组中添加修改分类按钮 -->
             <q-btn
               color="deep-purple"
@@ -381,6 +394,17 @@
               @click="handleCategoryEdit(product)"
             >
               <q-tooltip>修改分类</q-tooltip>
+            </q-btn>
+
+            <!-- 在操作按钮组中添加 -->
+            <q-btn
+              flat
+              color="teal"
+              icon="settings"
+              dense
+              @click="handleParamsEdit(product)"
+            >
+              <q-tooltip>参数设置</q-tooltip>
             </q-btn>
           </q-btn-group>
         </div>
@@ -470,7 +494,7 @@
     <q-dialog v-model="showQualityDialog">
       <q-card style="min-width: 350px">
         <q-card-section>
-          <div class="text-h6">修改��品品质</div>
+          <div class="text-h6">修改商品品质</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
@@ -510,20 +534,16 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <a-tree-select
-            v-model:value="selectedNewCategory"
-            :tree-data="categories"
+          <Treeselect
+            :modelValue="selectedNewCategory"
+            @update:modelValue="selectedNewCategory = $event"
+            :options="categories"
+            :normalizer="normalizer"
             placeholder="选择分类"
-            allow-clear
-            :field-names="{
-              label: 'label',
-              value: 'value',
-              children: 'children'
-            }"
-            style="width: 100%"
-            tree-default-expand-all
-            :popup-style="{ zIndex: 7000 }"
-            :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+            :clearable="true"
+            :default-expand-level="Infinity"
+            :max-height="400"
+            class="category-select"
           />
         </q-card-section>
 
@@ -536,40 +556,37 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import ProdTransport from '~/components/product/ProdTransport.vue'
 import {tansParams} from "~/utils/tools";
 import CachedImage from "~/components/common/CachedImage.vue";
+import { defineAsyncComponent } from 'vue'
+// import "@zanmato/vue3-treeselect/dist/vue3-treeselect.css"
+
+const Treeselect = defineAsyncComponent(() =>
+  import('@zanmato/vue3-treeselect').then(mod => mod.default)
+)
 
 const router = useRouter()
 const $q = useQuasar()
 const token = useCookie('token');
-// 定义分类接口
-interface Category {
-  categoryId: string
-  categoryName: string
-  parentId: string
-  seq: number
-  status: number
-  icon?: File | null
-  children?: Category[]
-}
+
 const queryParams = ref({
-    pageNum: 1,
-    pageSize: 20,
-    device: 2,
-     search: null,
-    status:null,
-    categoryId:null,
-    minPrice: null,
-    maxPrice: null,
-    minStock: null,
-    maxStock: null,
-    quality: null
-});
+  pageNum: 1,
+  pageSize: 20,
+  device: 2,
+  search: null,
+  status: null,
+  categoryId: null,
+  minPrice: null,
+  maxPrice: null,
+  minStock: null,
+  maxStock: null,
+  quality: null
+})
 
 
 // 状态和数据
@@ -582,7 +599,7 @@ const searchKeyword = ref('')
 const deleteDialog = ref(false)
 const productToDelete = ref(null)
 // 分类树数据
-const categoryTree = ref<Category[]>([])
+const categoryTree = ref([])
 // 添加分类相关数据
 const categories = ref([])
 const selectedCategory = ref(null)
@@ -590,17 +607,17 @@ const selectedCategory = ref(null)
 // 运费设置相关
 const showDeliveryDialog = ref(false)
 const savingDelivery = ref(false)
-const currentProduct = ref<any>(null)
+const currentProduct = ref(null)
 const deliveryForm = ref({
   hasShopDelivery: false,
   hasUserPickUp: false,
-  deliveryTemplateId: null as number | null,
-  transportInfo: null as any
+  deliveryTemplateId: null,
+  transportInfo: null
 })
 
 // 添加的响应式变量
 const showQualityDialog = ref(false)
-const selectedQuality = ref(null)
+const selectedQuality = ref('')
 const currentEditingProduct = ref(null)
 
 // 修改品质选项数组的值
@@ -618,17 +635,17 @@ const qualityOptions = [
   {
     label: 'B级 - 良品',
     value: 'B',  // 保持大写字母
-    description: '品质中等，符合一般消费者的需求'
+    description: '品质���等，符合一般消费者的需求'
   },
   {
     label: 'C级 - 普品',
     value: 'C',  // 保持大写字母
-    description: '品质一般，价格较低'
+    description: '品质���般，价格较低'
   },
   {
     label: 'D级 - 次品',
     value: 'D',  // 保持大写字母
-    description: '品质较差，存在明显的缺陷'
+    description: '品质较差，存在明显缺陷'
   }
 ]
 
@@ -640,12 +657,12 @@ watch([currentPage, filterStatus, selectedCategory, searchKeyword], () => {
 // 加载分类列表
 async function loadCategories() {
   try {
-    const response = await api.get(`/category/subTree?parentId=0`)
+    const response = await api.get(`/sys/category/subTree?parentId=0`)
     const result = response.data
 
     if (result.code === 200) {
       // 处理多级分类数
-      const processCategories = (cats: any[]) => {
+      const processCategories = (cats) => {
         return cats.map(cat => ({
           label: cat.categoryName,
           value: cat.categoryId,
@@ -656,7 +673,7 @@ async function loadCategories() {
       categories.value = processCategories(result.data)
     }
   } catch (error) {
-    console.error('加载分类列表失败:', error)
+    console.error('加载分类列表��败:', error)
     $q.notify({
       type: 'negative',
       message: '加载分类列表失败'
@@ -708,8 +725,10 @@ async function loadProducts() {
 
 // 添加搜索处理方法
 const handleSearch = () => {
+  if (!queryParams.value) return
+
   // 验证价格区间
-  if (queryParams.value.minPrice && queryParams.value.maxPrice) {
+  if (queryParams.value.minPrice != null && queryParams.value.maxPrice != null) {
     if (queryParams.value.minPrice > queryParams.value.maxPrice) {
       $q.notify({
         type: 'negative',
@@ -724,30 +743,49 @@ const handleSearch = () => {
     queryParams.value.quality = queryParams.value.quality.toUpperCase()
   }
 
-  currentPage.value = 1 // 重置页码
+  // 更新其他查询参数
+  queryParams.value.search = searchKeyword.value || null
+  queryParams.value.categoryId = selectedCategory.value || null
+  queryParams.value.status = filterStatus.value || null
+  queryParams.value.pageNum = 1 // 重置页码
+
   loadProducts()
 }
 
-// 监听价格和品质变化
+// 监听价格��品质变化
 watch([
-  () => queryParams.value.minPrice,
-  () => queryParams.value.maxPrice,
-  () => queryParams.value.quality
+  () => queryParams.value?.minPrice,
+  () => queryParams.value?.maxPrice,
+  () => queryParams.value?.minStock,
+  () => queryParams.value?.maxStock,
+  () => queryParams.value?.quality
 ], () => {
-  handleSearch()
-})
+  if (queryParams.value) {
+    handleSearch()
+  }
+}, { deep: true })
 
 // 重置搜索条件
 const resetSearch = () => {
+  if (!queryParams.value) return
+
   queryParams.value = {
-    ...queryParams.value,
-    prodName: null,
+    pageNum: 1,
+    pageSize: 20,
+    device: 2,
+    search: null,
+    status: null,
+    categoryId: null,
     minPrice: null,
     maxPrice: null,
     minStock: null,
     maxStock: null,
     quality: null
   }
+
+  searchKeyword.value = ''
+  selectedCategory.value = null
+  filterStatus.value = null
   handleSearch()
 }
 
@@ -786,7 +824,7 @@ async function handleStatusChange(product) {
 
 // 处理查看
 function handleView(product) {
-  window.open(`/sys/product/detail?prodId=${product.prodId}&categoryId=${product.categoryId}`, '_blank')
+  window.open(`/admin/product/detail?prodId=${product.prodId}&categoryId=${product.categoryId}`, '_blank')
 }
 
 // 处理订单列表
@@ -829,17 +867,17 @@ async function confirmDelete() {
 
 // 基本信息编辑
 const handleBasicEdit = (product) => {
-  window.open(`/sys/product/edit/basic?prodId=${product.prodId}`, '_blank')
+  window.open(`/admin/product/edit/basic?prodId=${product.prodId}`, '_blank')
 }
 
 // 商品详情编辑
 const handleDetailEdit = (product) => {
-  window.open(`/sys/product/edit/detail?prodId=${product.prodId}`, '_blank')
+  window.open(`/admin/product/edit/detail?prodId=${product.prodId}`, '_blank')
 }
 
 // 标签管理
 const handleTagEdit = (product) => {
-  window.open(`/sys/product/edit/tags?prodId=${product.prodId}`, '_blank')
+  window.open(`/admin/product/edit/tags?prodId=${product.prodId}`, '_blank')
 }
 
 // 规格参数
@@ -848,7 +886,7 @@ const handleSpecEdit = (product) => {
 }
 
 // 运费设置
-const handleDeliveryEdit = (product: any) => {
+const handleDeliveryEdit = (product) => {
   currentProduct.value = product
   // 解析当前配送方式
   try {
@@ -878,15 +916,11 @@ const handleImageEdit = (product) => {
 
 // 预售信息(仅预售商品显示)
 const handlePresellEdit = (product) => {
-  window.open(`/sys/product/edit/presell?prodId=${product.prodId}`, '_blank')
+  window.open(`/admin/product/edit/presell?prodId=${product.prodId}`, '_blank')
 }
 
-// 处理运输方式变更
-const handleTransportChange = (transport: {
-  methodId: number
-  method: { name: string }
-  rule: any
-}) => {
+// 处理运输方式更
+const handleTransportChange = (transport) => {
   if (!transport || !transport.methodId) {
     console.warn('无效的运输方式数据:', transport)
     return
@@ -897,14 +931,14 @@ const handleTransportChange = (transport: {
   // 更新运费模板ID
   deliveryForm.value.deliveryTemplateId = Number(transport.methodId)
 
-  // 更新运输信息
+  // 更新运息
   deliveryForm.value.transportInfo = {
     methodId: Number(transport.methodId),
     methodName: transport.method?.name || '',
     rule: transport.rule || null
   }
 
-  // 确保商家配送已启用
+  // 保商家配送已启用
   deliveryForm.value.hasShopDelivery = true
 
   $q.notify({
@@ -965,30 +999,30 @@ async function saveDeliverySettings() {
 
 // 处理宣传图片管理
 function handlePromoImages(product) {
-  window.open(`/sys/product/edit/image?prodId=${product.prodId}`, '_blank')
+  window.open(`/admin/product/edit/image?prodId=${product.prodId}`, '_blank')
 }
 
 function handleViewSkuTag(product) {
-  window.open(`/sys/product/edit/sku?prodId=${product.prodId}`, '_blank')
+  window.open(`/admin/product/edit/sku?prodId=${product.prodId}`, '_blank')
 }
 
 
 // 修改查看SKU按钮的处理方法
-function handleViewSkus(product: any) {
-  window.open(`/sys/product/sku/list?prodId=${product.prodId}`, '_blank')
+function handleViewSkus(product) {
+  window.open(`/admin/product/sku/list?prodId=${product.prodId}`, '_blank')
 }
 
 
 
-// 添加图片预览功能
-function previewImage(url: string) {
+// 添加片预览功能
+function previewImage(url) {
   if (!url) return
   window.open(getImageUrl(url), '_blank')
 }
 
 // 跳转到评论管理页面
-const goToComments = (product: any) => {
-  window.open(`/sys/product/comments/${product.prodId}`, '_blank')
+const goToComments = (product) => {
+  window.open(`/admin/product/comments/${product.prodId}`, '_blank')
 }
 
 // 处理品质编辑
@@ -1001,7 +1035,7 @@ const handleQualityEdit = (product) => {
 // 保存品质
 const saveQuality = async () => {
   try {
-    // 确保发送的品质值是大写字母
+    // 确保发送的质值是大写字母
     const qualityValue = selectedQuality.value.toUpperCase()
     const response = await api.get(`/sys/prod/update/quality/${currentEditingProduct.value.prodId}/${qualityValue}`)
 
@@ -1024,13 +1058,13 @@ const saveQuality = async () => {
 }
 
 // 在商品信息区域添加品质显示
-const getQualityLabel = (quality: string) => {
+const getQualityLabel = (quality) => {
   const option = qualityOptions.find(opt => opt.value === quality)
   return option ? option.label : '未设置'
 }
 
-// 修改品质颜色映射
-const getQualityColor = (quality: string) => {
+// 改品质颜色映射
+const getQualityColor = (quality) => {
   const colors = {
     'S': 'purple',
     'A': 'primary',
@@ -1045,7 +1079,7 @@ const getQualityColor = (quality: string) => {
 const showCategoryDialog = ref(false)
 const selectedNewCategory = ref(null)
 
-// 处��分类编辑
+// 处理分类编辑
 const handleCategoryEdit = (product) => {
   currentEditingProduct.value = product
   selectedNewCategory.value = product.categoryId
@@ -1077,7 +1111,24 @@ const saveCategory = async () => {
 
 // 添加处理简述编辑的方法
 const handleBriefEdit = (product) => {
-  window.open(`/sys/product/brief?prodId=${product.prodId}`, '_blank')
+  window.open(`/admin/product/brief?prodId=${product.prodId}`, '_blank')
+}
+
+// 在 script setup 中添加 normalizer 函数
+const normalizer = (node) => ({
+  id: node.value,
+  label: node.label,
+  children: node.children
+})
+
+// 处理品牌编辑
+const handleBrandEdit = (product) => {
+  window.open(`/admin/product/brief?prodId=${product.prodId}#brand`, '_blank')
+}
+
+// 处理参数设置
+const handleParamsEdit = (product) => {
+  window.open(`/admin/product/brief?prodId=${product.prodId}#params`, '_blank')
 }
 </script>
 
@@ -1329,17 +1380,21 @@ const handleBriefEdit = (product) => {
 
 .category-dialog {
   min-width: 350px;
-  z-index: 6000;  // 确保对话框在较高层级
-}
-</style>
-
-<style lang="scss">
-// 添加全局样式
-.ant-select-dropdown {
-  z-index: 7000 !important; // 确保下拉菜单在对话框之上
+  z-index: 6000;  // 确保话框在较高层级
 }
 
-.ant-tree-select-dropdown {
-  z-index: 7000 !important; // 确保树形选择器下拉菜单在对话框之上
+.category-select {
+  :deep(.vue3-treeselect__control) {
+    border-radius: 4px;
+    border: 1px solid #dcdfe6;
+
+    &:hover {
+      border-color: #409eff;
+    }
+  }
+
+  :deep(.vue3-treeselect__menu) {
+    z-index: 7000;
+  }
 }
 </style>

@@ -51,6 +51,53 @@
           </q-item>
           <q-separator/>
           <q-item v-ripple
+                  :active="link === 'brand'"
+                  active-class="my-menu-link"
+                  clickable
+                  to="/admin/brand"
+                  @click="link = 'brand'"
+          >
+            <q-item-section avatar>
+              <q-icon name="reorder"/>
+            </q-item-section>
+
+            <q-item-section>
+              品牌管理
+            </q-item-section>
+          </q-item>
+          <q-item v-ripple
+                  :active="link === 'prop'"
+                  active-class="my-menu-link"
+                  clickable
+                  to="/admin/prop"
+                  @click="link = 'prop'"
+          >
+            <q-item-section avatar>
+              <q-icon name="reorder"/>
+            </q-item-section>
+
+            <q-item-section>
+              规格管理
+            </q-item-section>
+          </q-item>
+          <q-item v-ripple
+                  :active="link === 'param'"
+                  active-class="my-menu-link"
+                  clickable
+                  to="/admin/param"
+                  @click="link = 'param'"
+          >
+            <q-item-section avatar>
+              <q-icon name="reorder"/>
+            </q-item-section>
+
+            <q-item-section>
+              参数管理
+            </q-item-section>
+          </q-item>
+          <q-separator/>
+          <q-separator/>
+          <q-item v-ripple
                   :active="link === 'delivery'"
                   active-class="my-menu-link"
                   clickable

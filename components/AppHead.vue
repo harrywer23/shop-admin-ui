@@ -39,7 +39,7 @@
             </template>
 
             <q-list>
-              <q-item clickable v-close-popup to="/user">
+              <q-item clickable v-close-popup to="/admin">
                 <q-item-section avatar>
                   <q-icon name="person" />
                 </q-item-section>
@@ -62,22 +62,22 @@
           </q-btn-dropdown>
             <q-btn
             flat
-            :to="'/user/orders'"
+            :to="'/admin/product/list'"
             class="q-mr-sm"
             v-tooltip="{ text: t('nav.ordersTooltip') }"
           >
             <q-icon name="receipt_long" />
-            <span class="q-ml-xs">{{ t('nav.orders') }}</span>
+            <span class="q-ml-xs">商品列表</span>
           </q-btn>
 
           <q-btn
             flat
-            :to="'/cart'"
+            :to="'/admin'"
             class="q-mr-sm"
             v-tooltip="{ text: t('nav.cartTooltip') }"
           >
             <q-icon name="shopping_cart" />
-            <span class="q-ml-xs">{{ t('nav.cart') }}</span>
+            <span class="q-ml-xs">管理中心</span>
             <q-badge
               v-if="cartItemCount"
               color="red"

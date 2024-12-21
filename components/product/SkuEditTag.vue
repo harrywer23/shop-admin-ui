@@ -255,7 +255,7 @@ watch([selectedProps, selectedPropValues], ([props, values]) => {
 const initData = async () => {
   try {
     // 获取规格列表
-    const response = await fetch('/api/specs/list')
+    const response = await fetch('/sys/specs/list')
     const data = await response.json()
     dbTags.value = data.data
   } catch (error) {
@@ -288,8 +288,8 @@ const handlePropSelect = async (prop: any) => {
 
   try {
     // 获取选中规格的规格值列表
-    const response = await fetch(`/api/specs/${prop.propId}/values`)
-    const data = await response.json()
+    const response = await api.get(`/sys/specs/${prop.propId}/values`)
+    const data = await response.data
     if(data.code == 200){
 
 
@@ -508,7 +508,7 @@ function isValueDuplicate(value: string): boolean {
   const prop = propList.value[currentPropIndex.value]
   if (!prop) return false
 
-  return prop.values.some((v, index) => 
+  return prop.values.some((v, index) =>
     v.propValue === value && index !== currentValueIndex.value
   )
 }
@@ -523,10 +523,10 @@ function confirmEdit() {
   try {
     // 更新属性值
     prop.values[currentValueIndex.value].propValue = editValueInput.value
-    
+
     // 更新数据
     updateModelValue()
-    
+
     // 关闭对话框并重置状态
     showEditDialog.value = false
     editValueInput.value = ''
@@ -617,7 +617,7 @@ function confirmEdit() {
     .q-btn {
       margin-left: 4px;
       opacity: 0.8;
-      
+
       &:hover {
         opacity: 1;
       }

@@ -164,8 +164,8 @@ onMounted(async () => {
 // 加载运费方式列表
 async function loadTransportMethods() {
   try {
-    const repos = await fetch('/api/transport/list')
-    const data = repos.json()
+    const repos = await api.get('/sys/transport/list')
+    const data = repos.data
     if(data.code == 200 ) {
       transportMethods.value = data.data;
       // 如果有modelValue,选中对应方式
@@ -187,8 +187,8 @@ async function loadTransportMethods() {
 // 加载运费方式详情
 async function loadTransportDetail(id: number) {
   try {
-    const repos = await fetch(`/api/transport/${id}`)
-    const data = repos.json()
+    const repos = await api.get(`/sys/transport/${id}`)
+    const data = repos.data
     if(data.code === 200) {
       // 更新选中方式的规则
       const detail = data.data

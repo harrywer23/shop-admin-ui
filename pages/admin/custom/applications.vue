@@ -333,7 +333,7 @@ const cancelApplication = async (id: string) => {
 // 加载申请列表
 const loadApplications = async () => {
   try {
-    const response = await api.get('/custom/applications', {
+    const response = await api.get('/sys/custom/applications', {
       params: {
         page: currentPage.value,
         pageSize

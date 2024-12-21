@@ -745,7 +745,7 @@ const getDataList = async () => {
   try {
     await getTagList()
     if (dataForm.value.prodId) {
-      const response = await api.get(`/prod/adminDetail/${dataForm.value.prodId}`);
+      const response = await api.get(`/sys/prod/adminDetail/${dataForm.value.prodId}`);
       const data = await response.data.data;
       // 格式化时间字段，使用 formatToDateTime 而不是 formatDateTime
       const formattedData = {
@@ -794,7 +794,7 @@ const getDataList = async () => {
 
 const fetchCategoryName = async () => {
   try {
-    const response = await api.get(`/category/getInfo/${categoryId.value}`)
+    const response = await api.get(`/sys/category/getInfo/${categoryId.value}`)
     if (response.data.code === 200) {
       dataForm.value.categoryName = response.data.data.categoryName;
       dataForm.value.categoryId = categoryId.value;
@@ -807,7 +807,7 @@ const fetchCategoryName = async () => {
 // 获取标签列表
 const getTagList = async () => {
   try {
-    const response = await api.get('/sys/prod/prodTag/listTagList')
+    const response = await api.get('/sys/prod/tag/list')
     const result: ApiResponse<ProdTag[]> = await response.data
 
     if (result.code === 200) {

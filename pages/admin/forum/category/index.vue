@@ -223,7 +223,6 @@ import { useQuasar } from 'quasar'
 import { api } from '@/utils/axios'
 import { useI18n } from 'vue-i18n'
 import { getImageUrl } from '~/utils/tools.js'
-import type {Translations} from "~/utils/constants";
 
 interface ForumCategory {
   id: number
@@ -278,7 +277,7 @@ const activeLanguage = ref('zh-CN')
 // 获取分类列表数据
 const fetchCategories = async () => {
   try {
-    const res = await api.get('/forum/category/list')
+    const res = await api.get('/sys/forum/category/list')
     //console.log('原始数据:', res.data.data)
     if (res.data.succ) {
       // 处理返回的数据，解析国际化名称
@@ -393,7 +392,7 @@ const uploadImage = async (file: File) => {
     const formData = new FormData()
     formData.append('file', file)
 
-    const res = await api.post('/common/upload', formData, {
+    const res = await api.post('/common/uploadImage', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }

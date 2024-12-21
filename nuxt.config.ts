@@ -164,5 +164,8 @@ export default defineNuxtConfig({
       }
     }
   },
-  compatibilityDate: '2024-11-07'
+  compatibilityDate: '2024-11-07',
+  css: [
+    '~/assets/styles/vue3-treeselect.min.css'
+  ],
 })

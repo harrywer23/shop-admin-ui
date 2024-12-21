@@ -6,7 +6,7 @@
         color="primary"
         icon="add"
         label="新增公告"
-        @click="$router.push('/sys/notice/edit')"
+        @click="$router.push('/admin/notice/edit')"
       />
     </div>
 

@@ -161,7 +161,7 @@ async function handleSubmit() {
        tag.id)
 
 
-    const response = await api.post('/prodTagReference/update/prodTags',  JSON.stringify({
+    const response = await api.post('/sys/prodTagReference/update/prodTags',  JSON.stringify({
         "prodId": prodId.value,
         "tagIds": tagIdList
 

@@ -379,7 +379,7 @@ const uploadImage = async (file: File) => {
     const formData = new FormData()
     formData.append('file', file)
 
-    const res = await api.post('/common/upload', formData, {
+    const res = await api.post('/common/uploadImage', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
