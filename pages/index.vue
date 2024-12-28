@@ -36,8 +36,8 @@ async function onSubmit() {
       },
     });
 
-    const data = response.data;
-    if (data.code == 200) {
+    const {code,data} =await response.data;
+    if (code == 200) {
       const token = useCookie('token', {
         maxAge: 60 * 60 * 24 * 7, // 7天过期
         path: '/',  // 添加路径
@@ -45,16 +45,22 @@ async function onSubmit() {
         sameSite: 'strict'  // 增加安全性
       });
 
-      const userInfo = useCookie('userInfo', { maxAge: 60 * 60 * 24 * 7, path: '/' });
-      const accessToken = useCookie('accessToken', { maxAge: 60 * 60 * 24 * 7, path: '/' });
-      const refreshToken = useCookie('refreshToken', { maxAge: 60 * 60 * 24 * 7, path: '/' });
-      const userId = useCookie('id', { maxAge: 60 * 60 * 24 * 7, path: '/' });
+      const accessToken = useCookie('accessToken', { maxAge: 60 * 60 * 24 * 7, path: '/' })
+      const refreshToken = useCookie('refreshToken', { maxAge: 60 * 60 * 24 * 7, path: '/' })
+      const userId = useCookie('id', { maxAge: 60 * 60 * 24 * 7, path: '/' })
+      const verify = useCookie('verify', { maxAge: 60 * 60 * 24 * 7, path: '/' })
+      const userName = useCookie('userName', { maxAge: 60 * 60 * 24 * 7, path: '/' })
+      const avatar = useCookie('avatar', { maxAge: 60 * 60 * 24 * 7, path: '/' })
+      const nickName = useCookie('nickName', { maxAge: 60 * 60 * 24 * 7, path: '/' })
 
       token.value = data.token;
-      userInfo.value = JSON.stringify(data.user);
       accessToken.value = data.accessToken;
       refreshToken.value = data.refreshToken;
-      userId.value = data.user.id.toString();
+      userId.value = data.userId;
+      verify.value = data.verify;;
+      userName.value = data.userName;
+      avatar.value = data.avatar;
+      nickName.value = data.nickName;
 
       Dialog.create({
         color: 'positive',

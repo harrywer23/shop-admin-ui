@@ -112,8 +112,12 @@ export const PAYMENT_METHOD_OPTIONS = [
 
 // API 相关常量
 export const API_CONSTANTS = {
-  //BASE_URL: 'http://127.0.0.1:8097',
+  // BASE_URL: 'http://127.0.0.1:8097',
+  // CHAT_URL: 'http://127.0.0.1:8096',
+  // CHAT_SOCKET_URL:'ws://127.0.0.1:8096/ws',
   BASE_URL: 'https://sys.51x.uk',
+  CHAT_URL: 'http://chat.51x.uk',
+  CHAT_SOCKET_URL:'ws://chat.51x.uk/ws',
   IMAGE_BASE_URL: 'https://image.aiavr.uk/xinshijie',
   TIMEOUT: 30000,
   MAX_RETRIES: 3
@@ -144,6 +148,13 @@ export const REFUND_APPLY_TYPE_OPTIONS = [
   { label: '仅退款', value: RefundApplyType.REFUND_ONLY },
   { label: '退款退货', value: RefundApplyType.REFUND_WITH_RETURN }
 ]
+export interface Translations {
+  zh: string
+  en: string
+  zhTw: string
+  ja: string
+  ko: string
+}
 
 // 退款状态
 export enum RefundStatus {

@@ -74,9 +74,24 @@
       </q-card>
     </div>
 
+    <!-- 添加本地搜索输入框 -->
+    <div class="q-mb-md">
+      <q-input
+        v-model="localSearch"
+        dense
+        outlined
+        placeholder="输入名称搜索"
+        class="local-search"
+      >
+        <template v-slot:append>
+          <q-icon name="search" />
+        </template>
+      </q-input>
+    </div>
+
     <!-- 区域列表 -->
     <q-table
-      :rows="areas"
+      :rows="filteredAreas"
       :columns="columns"
       row-key="id"
       :loading="loading"
@@ -161,7 +176,7 @@
               v-model="formData.level"
               :options="levelOptions"
               label="层级"
-              :rules="[val => !!val || '请选择层级']"
+              :rules="[val => !!val || '��选择层级']"
               outlined
               dense
               emit-value
@@ -277,7 +292,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useQuasar } from 'quasar'
 import { api } from '~/utils/axios'
 definePageMeta({
@@ -370,6 +385,27 @@ const pagination = ref({
   page: 1,
   rowsPerPage: 10,
   rowsNumber: 0
+})
+
+// 添加本地搜索状态
+const localSearch = ref('')
+
+// 添加计算属性进行本地过滤
+const filteredAreas = computed(() => {
+  if (!localSearch.value) return areas.value
+  
+  const searchTerm = localSearch.value.toLowerCase()
+  return areas.value.filter(area => {
+    // 搜索中文名称
+    if (area.name?.toLowerCase().includes(searchTerm)) return true
+    // 搜索国际化名称
+    if (area.internationalized) {
+      return Object.values(area.internationalized).some(
+        value => value?.toLowerCase().includes(searchTerm)
+      )
+    }
+    return false
+  })
 })
 
 // 获取层级标签和颜色
@@ -629,6 +665,10 @@ onMounted(() => {
       color: #666;
       font-weight: 500;
     }
+  }
+
+  .local-search {
+    max-width: 300px;
   }
 }
 </style>
