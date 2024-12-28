@@ -116,7 +116,7 @@ export const API_CONSTANTS = {
   // CHAT_URL: 'http://127.0.0.1:8096',
   // CHAT_SOCKET_URL:'ws://127.0.0.1:8096/ws',
   BASE_URL: 'https://sys.51x.uk',
-  CHAT_URL: 'http://chat.51x.uk',
+  CHAT_URL: 'https://chat.51x.uk',
   CHAT_SOCKET_URL:'ws://chat.51x.uk/ws',
   IMAGE_BASE_URL: 'https://image.aiavr.uk/xinshijie',
   TIMEOUT: 30000,
