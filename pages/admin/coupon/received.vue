@@ -17,9 +17,15 @@
 </template>
 
 <script lang="ts" setup>
+definePageMeta({
+  layout: 'admin',
+  middleware: 'auth'
+});
 import { ref, onMounted } from 'vue';
 import { api } from '~/utils/axios';
+import { useRoute } from 'vue-router';
 
+const route = useRoute();
 const coupons = ref([]);
 const filter = ref('');
 
@@ -32,12 +38,16 @@ const columns = [
 ];
 
 async function fetchReceivedCoupons() {
-  const response = await api.get('/sys/coupons/received');
-  coupons.value = response.data;
+  const couponId = route.query.couponId;
+  const response = await api.get(`/sys/coupon/received?couponId=${couponId}`);
+  const data = await response.data;
+  if( data.code == 200 ) {
+    coupons.value = data.data;
+  }
 }
 
 function deleteReceivedCoupon(receiveId) {
-  api.delete(`/sys/coupons/received/${receiveId}`).then(() => {
+  api.delete(`/sys/coupon/received/${receiveId}`).then(() => {
     fetchReceivedCoupons();
   });
 }
@@ -55,4 +65,4 @@ onMounted(() => {
 
 <style scoped>
 /* 添加样式 */
-</style> 
+</style>
