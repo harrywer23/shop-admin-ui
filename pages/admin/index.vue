@@ -283,6 +283,7 @@ async function onSubmit() {
         </div>
       </div>
     </div>
+    <q-btn color="primary" to="/admin/coupons">优惠券管理</q-btn>
   </div>
 </template>
 

@@ -240,6 +240,22 @@
           </q-item>
           <q-item
               v-ripple
+              :active="link === 'coupon'"
+              active-class="my-menu-link"
+              clickable
+              to="/admin/coupon"
+              @click="link = 'coupon'"
+          >
+            <q-item-section avatar>
+              <q-icon name="mail_outline"/>
+            </q-item-section>
+
+            <q-item-section>
+              优惠卷
+            </q-item-section>
+          </q-item>
+          <q-item
+              v-ripple
               :active="link === 'service'"
               active-class="my-menu-link"
               clickable
